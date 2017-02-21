@@ -1,4 +1,4 @@
-.modal-header.flex-column.bc-modal-header
+.modal-header.flex-column.bc-modal-header(data-preflight-tag="Send")
   .flex-center
     img(src="img/arrow-up.png")
     h3(ng-show="!confirmationStep && !advanced", translate="SEND_BITCOIN")
@@ -20,7 +20,7 @@
     form.pos-rel.ph-form(role="form",name="sendForm" autocomplete="off" novalidate)
       //- From
       .form-group.row.flex-justify(ng-show="numberOfActiveAccountsAndLegacyAddresses() > 1")
-        label.pts
+        label.ptm
           span(translate="FROM")
           |:
         .flex-1(ng-class="{'has-error': (sendForm.from.$invalid && sendForm.destinations0.$touched) || (sendForm.priv.$invalid && sendForm.priv.$touched) }")
@@ -55,7 +55,7 @@
       //- Advanced Send
       .form-group.flex-justify.bc-modal-fade.mvl.advanced-recipient.row
         //- To
-        label.pts
+        label.ptm
           span(translate="TO")
           |:
         div(ng-class="{rel: advanced, mbl: advanced}")
@@ -68,7 +68,9 @@
                 ng-model="transaction.destinations[$index]"
                 ng-model-options="{ updateOn: 'blur' }"
                 ng-change="checkForSameDestination()"
+                ng-paste="handlePaste($event, $index)"
                 on-payment-request="applyPaymentRequest(request, $index)"
+                set-input-metric="$parent.inputMetric = metric"
                 ignore="transaction.from"
                 required)
             .has-error
@@ -91,7 +93,7 @@
                     ng-change="setPaymentAmount()"
                     required
                   )
-              i.ti-arrows-horizontal.h4.aaa.prm
+              i.ti-arrows-horizontal.h4.border-grey.prm
               .flex-1
                 .flex-center.border-bottom
                   span.mrm {{ fiatCurrency.code }}:
@@ -116,7 +118,7 @@
               ng-show="transaction.maxAvailable != null && getTransactionTotal() > transaction.maxAvailable && !failedToLoadUnspent")
               span.type-sm(translate="USE_TOTAL")
               | :&nbsp;
-              span.type-sm {{ transaction.maxAvailable | convert:false:true }}
+              span.type-sm {{ transaction.maxAvailable | convert:'btc' }}
             span.help-block(ng-show="failedToLoadUnspent" ng-click="reopenModal()")
               span.type-sm.pointer(translate="ERR_FETCH_UNSPENT_RETRY")
           a.flex-center.flex-justify.add(ng-click="addDestination()" ng-show="advanced")
@@ -172,7 +174,7 @@
         .flex-column
           span.type-lbl.mbs.underline(translate="TO")
           .mls.mbs.flex-row.flex-center.center(ng-repeat="address in getToLabels() track by $index")
-            span.account.mvn.width-50-mobile.width-50.em-400 {{ address.label || address.address }}
+            span.account.mvn.width-50-mobile.width-60.em-400 {{ address.label || address.address }}
             .width-50.width-50-mobile.flex-between
               span(ng-class="{success: address.type !== 'External'}")
                 span(ng-class="{fade: address.type === 'External'}") + 
@@ -181,26 +183,26 @@
                 span(ng-show="address.type !== 'External'") + 
                 fiat.mrml(btc="transaction.amounts[$index]")
           .mls.mbs.flex-row.flex-center.center.flex-between.pos-rel
-            span.aaa.account.width-50-mobile.width-50(translate="TX_FEE_REQUIRED")
+            span.mid-grey.account.width-50-mobile.width-60.f-12(translate="TX_FEE_REQUIRED")
             .width-50.width-50-mobile.flex-between
-              span.aaa.center 
+              span.mid-grey.center 
                 span.fade + 
                 span {{ transaction.fee | toBitCurrency:btcCurrency:false}}
-              span.aaa.center
+              span.mid-grey.center
                 fiat.mrml(btc="transaction.fee")
             helper-button(content="DYK_TX_FEES")
         .mvm.flex-justify.flex-1.flex-center.split-rule
         span.type-lbl.mbs.underline(translate="FROM")
         .mls.flex-row.flex-center.center.flex-between
-          span.account.width-50-mobile.width-50.mvn.em-400.long-input {{ transaction.from.label || transaction.from.address }}
+          span.account.width-50-mobile.width-60.mvn.em-400.long-input {{ transaction.from.label || transaction.from.address }}
           .width-50.width-50-mobile.flex-between
             span.flex-start.security-red - {{getTransactionTotal(true) | toBitCurrency:btcCurrency:false}}
             span.security-red -
               fiat.mrml(btc="getTransactionTotal(true)")
 .modal-footer.flex-between.flex-center.pal
   .flex-center
-    a.dark-grey(ng-hide="advanced || confirmationStep", ng-click="advancedSend()", translate="ADVANCED_SEND")
-    a.dark-grey(ng-show="advanced && !confirmationStep", ng-click="regularSend()", translate="REGULAR_SEND")
+    a.basic-grey(ng-hide="advanced || confirmationStep", ng-click="advancedSend()", translate="ADVANCED_SEND")
+    a.basic-grey(ng-show="advanced && !confirmationStep", ng-click="regularSend()", translate="REGULAR_SEND")
   .flex-center.flex-end.send-actions
     button.button-muted.mrm(
       ng-click="close()" translate="CANCEL" ng-hide="confirmationStep")
@@ -220,7 +222,7 @@
       data-style="expand-left"
       ng-hide="confirmationStep")
 
-    button.button-success(
+    button.button-primary(
       ladda-translate="SEND"
       ui-ladda="sending"
       ng-click="send()"

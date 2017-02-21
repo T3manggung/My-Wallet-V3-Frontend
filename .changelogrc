@@ -8,6 +8,10 @@
             "grep": "^fix"
         },
         {
+          "title": "Dependencies",
+          "grep": "^dep"
+        },
+        {
             "title": "Features",
             "grep": "^feat"
         },
@@ -28,8 +32,20 @@
             "grep": "^style"
         },
         {
+            "title": "Copy",
+            "grep": "^copy"
+        },
+        {
             "title": "Test",
             "grep": "^test"
+        },
+        {
+            "title": "Developer Tools",
+            "grep": "^dev"
+        },
+        {
+            "title": "Build Process",
+            "grep": "^build"
         },
         {
             "title": "Chore",

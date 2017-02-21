@@ -6,7 +6,7 @@ function SettingsPreferencesCtrl ($scope, Wallet, Alerts, currency, $uibModal, $
   $scope.user = Wallet.user;
   $scope.settings = Wallet.settings;
   $scope.notifications = $scope.settings.notifications;
-  $scope.languages = languages;
+  $scope.languages = languages.languages;
   $scope.themes = theme.themes;
   $scope.currencies = currency.currencies;
   $scope.btcCurrencies = currency.bitCurrencies;
@@ -16,6 +16,7 @@ function SettingsPreferencesCtrl ($scope, Wallet, Alerts, currency, $uibModal, $
   $scope.changeCurrency = Wallet.changeCurrency;
   $scope.changeBTCCurrency = Wallet.changeBTCCurrency;
   $scope.changeTheme = Wallet.changeTheme;
+  $window.innerWidth < 992 ? $scope.responsivePlacement = 'right' : $scope.responsivePlacement = 'left';
 
   $scope.updateNotificationsType = () => {
     Wallet.updateNotificationsType($scope.notifications).then(() => {

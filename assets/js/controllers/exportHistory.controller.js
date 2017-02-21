@@ -2,7 +2,7 @@ angular
   .module('walletApp')
   .controller('ExportHistoryController', ExportHistoryController);
 
-function ExportHistoryController ($scope, $sce, $translate, $filter, format, Wallet, MyWallet, activeIndex) {
+function ExportHistoryController ($scope, $sce, $timeout, $translate, $filter, format, Wallet, activeIndex) {
   $scope.limit = 50;
   $scope.incLimit = () => $scope.limit += 50;
 
@@ -40,15 +40,21 @@ function ExportHistoryController ($scope, $sce, $translate, $filter, format, Wal
   $scope.format = 'dd/MM/yyyy';
   $scope.options = { minDate: new Date(1231024500000), maxDate: new Date() };
 
-  $scope.start = { open: false, date: Date.now() - 604800000 };
-  $scope.end = { open: false, date: Date.now() };
+  $scope.start = { open: true, date: Date.now() - 604800000 };
+  $scope.end = { open: true, date: Date.now() };
 
-  $scope.formatDate = (date) => $filter('date')(date, 'dd/MM/yyyy');
+  $scope.formatDate = (sep, date) => $filter('date')(date, `dd${sep}MM${sep}yyyy`);
+
+  $scope.formatFilename = () => {
+    let start = $scope.formatDate('-', $scope.start.date);
+    let end = $scope.formatDate('-', $scope.end.date);
+    return `history-${start}-${end}.csv`;
+  };
 
   $scope.submit = () => {
     $scope.busy = true;
-    let start = $scope.formatDate($scope.start.date);
-    let end = $scope.formatDate($scope.end.date);
+    let start = $scope.formatDate('/', $scope.start.date);
+    let end = $scope.formatDate('/', $scope.end.date);
     let active = $scope.active.address || $scope.active.xpub;
     Wallet.exportHistory(start, end, active)
       .then((data) => {
@@ -57,4 +63,7 @@ function ExportHistoryController ($scope, $sce, $translate, $filter, format, Wal
       })
       .finally(() => $scope.busy = false);
   };
+
+  // need to open/close uib-datepicker-popup for it to validate minDate
+  $timeout(() => { $scope.start.open = $scope.end.open = false; }, 100);
 }

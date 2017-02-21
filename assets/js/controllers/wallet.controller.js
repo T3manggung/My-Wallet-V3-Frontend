@@ -2,7 +2,7 @@ angular
   .module('walletApp')
   .controller('WalletCtrl', WalletCtrl);
 
-function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $interval, $ocLazyLoad, $state, $uibModalStack, $q, MyWallet, currency, $translate, $window) {
+function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $interval, $ocLazyLoad, $state, $uibModalStack, $q, $cookies, MyWallet, currency, $translate, $window, buyStatus, modals) {
   $scope.goal = Wallet.goal;
 
   $scope.status = Wallet.status;
@@ -24,15 +24,16 @@ function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $i
 
   $scope.lastAction = Date.now();
   $scope.onAction = () => $scope.lastAction = Date.now();
-  $scope.getTheme = () => $scope.settings.theme.class;
+  $scope.getTheme = () => $scope.settings.theme && $scope.settings.theme.class;
 
   $scope.inactivityCheck = () => {
     if (!Wallet.status.isLoggedIn) return;
     let inactivityTimeSeconds = Math.round((Date.now() - $scope.lastAction) / 1000);
     let logoutTimeSeconds = Wallet.settings.logoutTimeMinutes * 60;
     if (inactivityTimeSeconds === logoutTimeSeconds - 10) {
-      let logoutTimer = $timeout(Wallet.my.logout, 10000);
-      Alerts.confirm('CONFIRM_AUTO_LOGOUT', { values: { minutes: Wallet.settings.logoutTimeMinutes }, action: 'LOG_ME_OUT' })
+      let logoutTimer = $timeout(() => Wallet.logout({ auto: true }), 10000);
+      let alertOpts = { values: { minutes: Wallet.settings.logoutTimeMinutes }, action: 'LOG_ME_OUT' };
+      Alerts.confirm('CONFIRM_AUTO_LOGOUT', alertOpts)
         .then(Wallet.logout).catch(() => $timeout.cancel(logoutTimer));
     }
   };
@@ -42,24 +43,22 @@ function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $i
 
   $rootScope.browserWithCamera = (navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia) !== void 0;
 
-  $scope.request = (hasLegacyAddress) => {
+  $scope.request = modals.openOnce(() => {
     Alerts.clear();
-    $scope.requestBeacon = false;
-    $uibModal.open({
+    return $uibModal.open({
       templateUrl: 'partials/request.jade',
       windowClass: 'bc-modal auto',
       controller: 'RequestCtrl',
       resolve: {
         destination: () => null,
-        focus: () => false,
-        hasLegacyAddress: () => hasLegacyAddress
+        focus: () => false
       }
     });
-  };
+  });
 
-  $scope.send = () => {
+  $scope.send = modals.openOnce(() => {
     Alerts.clear();
-    $uibModal.open({
+    return $uibModal.open({
       templateUrl: 'partials/send.jade',
       windowClass: 'bc-modal initial',
       controller: 'SendCtrl',
@@ -73,7 +72,7 @@ function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $i
         }
       }
     });
-  };
+  });
 
   $scope.$on('requireSecondPassword', (notification, defer, insist) => {
     const modalInstance = $uibModal.open({
@@ -90,29 +89,36 @@ function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $i
     modalInstance.result.then(() => {}, () => defer.reject());
   });
 
+  $scope.isPublicState = (stateName) => (
+    stateName.split('.')[0] === 'public' ||
+    ['landing', 'open', 'wallet.common.unsubscribe'].indexOf(stateName) > -1
+  );
+
   $scope.$on('$stateChangeStart', (event, toState, toParams, fromState, fromParams) => {
     let wallet = MyWallet.wallet;
-    let isUserInvited = wallet && wallet.accountInfo && wallet.accountInfo.invited;
-    let isPublicState = toState.name === 'landing' || toState.name.slice(0, 6) === 'public';
-    if (isPublicState && Wallet.status.isLoggedIn) event.preventDefault();
-    if (!isUserInvited && toState.name === 'wallet.common.buy-sell') event.preventDefault();
-    if (wallet && wallet.isDoubleEncrypted && toState.name === 'wallet.common.buy-sell') {
+    if ($scope.isPublicState(toState.name) && Wallet.status.isLoggedIn) {
       event.preventDefault();
-      Alerts.displayError('MUST_DISABLE_2ND_PW');
-    } else if (wallet && $rootScope.needsRefresh && toState.name === 'wallet.common.buy-sell') {
-      event.preventDefault();
-      Alerts.displayError('NEEDS_REFRESH');
+    }
+    if (wallet && toState.name === 'wallet.common.buy-sell') {
+      let error;
+
+      if (wallet.external && !wallet.external.loaded) error = 'POOR_CONNECTION';
+      else if (wallet.isDoubleEncrypted) error = 'MUST_DISABLE_2ND_PW';
+      else if ($rootScope.needsRefresh) error = 'NEEDS_REFRESH';
+
+      if (error) {
+        event.preventDefault();
+        Alerts.displayError(error);
+      }
     }
   });
 
   $scope.$on('$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) => {
-    let loggedOutStates = ['public', 'landing', 'public.login-no-uid', 'public.login-uid', 'public.reset-two-factor', 'public.recover', 'public.reminder', 'public.signup', 'public.help', 'open', 'public.verify-email', 'wallet.common.unsubscribe', 'public.authorize-approve', 'public.reset-two-factor-token'];
-    if (loggedOutStates.every(s => toState.name !== s) && $scope.status.isLoggedIn === false) {
-      $state.go('public.login-no-uid');
+    if (!$scope.isPublicState(toState.name) && !$scope.status.isLoggedIn) {
+      let showLogout = $window.name === 'blockchain-logout' && $cookies.get('session');
+      $state.go(`public.${showLogout ? 'logout' : 'login-no-uid'}`);
     }
     $rootScope.outOfApp = toState.name === 'landing';
-    $scope.requestBeacon = false;
-
     $uibModalStack.dismissAll();
   });
 
@@ -156,23 +162,25 @@ function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $i
       }
       if (Wallet.goal.auth) {
         Alerts.clear();
-        $translate(['AUTHORIZED', 'AUTHORIZED_MESSAGE']).then(translations => {
-          $scope.$emit('showNotification', {
-            type: 'authorization-verified',
-            icon: 'ti-check',
-            heading: translations.AUTHORIZED,
-            msg: translations.AUTHORIZED_MESSAGE
-          });
-        });
         Wallet.goal.auth = void 0;
       }
       if (Wallet.goal.firstTime) {
-        $uibModal.open({
-          templateUrl: 'partials/first-login-modal.jade',
-          windowClass: 'bc-modal rocket-modal initial'
+        buyStatus.canBuy().then((canBuy) => {
+          let template = canBuy ? 'partials/buy-login-modal.jade' : 'partials/first-login-modal.jade';
+          $uibModal.open({
+            templateUrl: template,
+            windowClass: 'bc-modal rocket-modal initial'
+          });
         });
         Wallet.goal.firstLogin = true;
         Wallet.goal.firstTime = void 0;
+      }
+      if (!Wallet.goal.firstLogin) {
+        buyStatus.canBuy().then((canBuy) => {
+          if (buyStatus.shouldShowBuyReminder() &&
+              !buyStatus.userHasAccount() &&
+              canBuy) buyStatus.showBuyReminder();
+        });
       }
       if (Wallet.status.didLoadTransactions && Wallet.status.didLoadBalances) {
         if (Wallet.goal.send != null) {
@@ -187,28 +195,11 @@ function WalletCtrl ($scope, $rootScope, Wallet, $uibModal, $timeout, Alerts, $i
           });
           Wallet.goal.send = void 0;
         }
-        if (Wallet.goal.claim != null) {
-          let modalInstance = $uibModal.open({
-            templateUrl: 'partials/claim.jade',
-            controller: 'ClaimModalCtrl',
-            resolve: {
-              claim: () => Wallet.goal.claim
-            },
-            windowClass: 'bc-modal'
-          });
-          modalInstance.result.then(() => {
-            Wallet.goal.claim = void 0;
-          });
-        }
       } else {
         $timeout($scope.checkGoals, 100);
       }
     }
   };
-
-  $scope.$on('enableRequestBeacon', () => {
-    $scope.requestBeacon = true;
-  });
 
   $scope.back = () => $window.history.back();
 }

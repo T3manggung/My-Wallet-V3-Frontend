@@ -1,4 +1,4 @@
-.modal-header
+.modal-header(data-preflight-tag="Change2FA")
   .flex-center
     img.mrm.two-fa-image(src="img/2FA.png")
     h3.mvn(translate="ENABLE_TWO_STEP" ng-hide="isStep('disable')")
@@ -57,5 +57,5 @@
   .flex-end
     button.button-muted(ng-click="mobileNumber.step = 1; goToStep('configure_mobile')" ng-show="mobileNumber.step === 2 && isStep('configure_mobile')") Change Mobile Number
     button.button-muted.mrm(ng-click="close()" translate="CLOSE")
-    button.button-success(ui-ladda="status.loading" data-style="expand-left" ng-show="isStep('pair')" ng-disabled="!validateCode(pairWith)" ng-click="pairWithApp(pairWith)" ladda-translate="ENABLE_2FA")
+    button.button-primary(ui-ladda="status.loading" data-style="expand-left" ng-show="isStep('pair')" ng-disabled="!validateCode(pairWith)" ng-click="pairWithApp(pairWith)" ladda-translate="ENABLE_2FA")
     button.button-danger(translate="DISABLE" ng-click="disableTwoFactor(); close()" ng-show="isStep('disable')")

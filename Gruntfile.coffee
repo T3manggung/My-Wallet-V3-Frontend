@@ -52,11 +52,6 @@ module.exports = (grunt) ->
         }
       }
 
-      html:
-        expand: true
-        src: ['build/index.html']
-        dest: ''
-
       js:
         expand: true
         src: ['build/js/app.js']
@@ -77,6 +72,8 @@ module.exports = (grunt) ->
           "bower_components/browserdetection/src/browser-detection.js"
           "bower_components/oclazyload/dist/ocLazyLoad.js"
           'bower_components/angular-ui-select/dist/select.js'
+          'bower_components/ng-file-upload/ng-file-upload-shim.min.js'
+          'bower_components/ng-file-upload/ng-file-upload.min.js'
           "build/js/sharedDirectives.js"
           "build/js/sharedDirectives/public-header.directive.js"
           "build/js/sharedDirectives/video-container.directive.js"
@@ -86,6 +83,7 @@ module.exports = (grunt) ->
           'build/js/landingCtrl.js'
           'build/js/routes.js'
           "build/js/services/bcTranslationLoader.service.js"
+          "build/js/services/languages.service.js"
         ]
         dest: "build/js/landing-not-minified-dependencies.js"
 
@@ -202,6 +200,7 @@ module.exports = (grunt) ->
     },
     "merge-json": # TODO: generate this list...
       bg: {src: [ "locales/bg-*.json" ], dest: "build/locales/bg.json"}
+      cs: {src: [ "locales/cs-*.json" ], dest: "build/locales/cs.json"}
       da: {src: [ "locales/da-*.json" ], dest: "build/locales/da.json"}
       de: {src: [ "locales/de-*.json" ], dest: "build/locales/de.json"}
       el: {src: [ "locales/el-*.json" ], dest: "build/locales/el.json"}
@@ -224,6 +223,7 @@ module.exports = (grunt) ->
       sv: {src: [ "locales/sv-*.json" ], dest: "build/locales/sv.json"}
       th: {src: [ "locales/th-*.json" ], dest: "build/locales/th.json"}
       tr: {src: [ "locales/tr-*.json" ], dest: "build/locales/tr.json"}
+      uk: {src: [ "locales/uk-*.json" ], dest: "build/locales/uk.json"}
       vi: {src: [ "locales/vi-*.json" ], dest: "build/locales/vi.json"}
       "zh-cn": {src: [ "locales/zh-cn-*.json" ], dest: "build/locales/zh-cn.json"}
 
@@ -248,8 +248,9 @@ module.exports = (grunt) ->
       fonts:
         files: [
           {src: ["bootstrap/*"], dest: "build/fonts", cwd: "bower_components/bootstrap-sass/assets/fonts", expand: true}
-          {src: ["*"], dest: "build/fonts", cwd: "assets/fonts/bc-icons", expand: true}
-          {src: ["*"], dest: "build/fonts", cwd: "assets/fonts/roboto", expand: true}
+          {src: ["*"], dest: "build/fonts", cwd: "assets/fonts/montserrat", expand: true}
+          {src: ["*"], dest: "build/fonts", cwd: "assets/fonts/gillsans", expand: true}
+          {src: ["*"], dest: "build/fonts", cwd: "assets/fonts/icomoon", expand: true}
           {src: ["*"], dest: "build/fonts", cwd: "assets/fonts/themify", expand: true}
 
         ]
@@ -268,7 +269,7 @@ module.exports = (grunt) ->
     watch:
       jade:
         files: ['app/partials/**/*.jade', 'app/templates/**/*.jade', 'app/*.jade']
-        tasks: ['build']
+        tasks: ['html2js', 'includeSource', 'concat:wallet']
         options:
           spawn: false
 
@@ -290,14 +291,22 @@ module.exports = (grunt) ->
         options:
           spawn: false
 
+      helper:
+        files: ['helperApp/plaid/**/*', 'helperApp/sift-science/**/*']
+        tasks: ['shell:webpack']
+        options:
+          spawn: false
+
     jade:
       html:
         options:
           client: false
+          pretty: true
+          data:
+            production: true
         files:
           "build/index.html": "app/index.jade"
           "build/landing.html": "app/landing.jade"
-
 
     babel:
       options:
@@ -435,6 +444,10 @@ module.exports = (grunt) ->
         command: (newVersion, message) ->
           "git tag -a -s #{ newVersion } -m '#{ message }' && git push origin #{ newVersion }"
 
+      webpack:
+        command: () ->
+          './node_modules/.bin/webpack --bail'
+
     coveralls:
       options:
         debug: true
@@ -464,34 +477,17 @@ module.exports = (grunt) ->
         replacements: [{
           from: 'customWebSocketURL = $rootScope.webSocketURL'
           to: () =>
-            prefix = "wss://"
-            if @rootDomain && @rootDomain.substr(0,5) == "local"
-              prefix = "ws://"
-            'customWebSocketURL = "' + prefix + @rootDomain + '/inv"'
+            "customWebSocketURL = '#{ @webSocketURL }'"
         }]
-      buy_sell_debug:
-        src: ['build/js/app.js'],
-        overwrite: true,
-        replacements: [{
-          from: 'buySellDebug = true'
-          to: () =>
-            if @rootDomain == null || @rootDomain == 'blockchain.info'
-              'buySellDebug = false'
-            else
-              'buySellDebug = true'
-        }]
-      buy_sell_coinify:
+      helper_app_url:
         src: ['build/js/wallet.js'],
         overwrite: true,
         replacements: [{
-          from: 'partnerId = 18'
+          from: 'http://localhost:8081'
           to: () =>
-            partnerId = 18
-            if @rootDomain == null || @rootDomain == 'blockchain.info'
-              partnerId = 19
-            console.log "Coinify partner ID: #{ partnerId }"
-            "partnerId = #{ partnerId }"
+            @helperAppUrl
         }]
+
       api_domain:
         src: ['build/js/wallet.js'],
         overwrite: true,
@@ -503,6 +499,13 @@ module.exports = (grunt) ->
             else
               "customApiDomain = 'https://" + @apiDomain + "/'"
         }]
+      network:
+        src: ['build/js/wallet.js'],
+        overwrite: true,
+        replacements: [{
+          from: "network = $rootScope.network"
+          to: () => "network = '" + @network + "'"
+        }]
       version_frontend:
         src: ['build/js/app.js'],
         overwrite: true,
@@ -511,7 +514,6 @@ module.exports = (grunt) ->
           to: () =>
             "versionFrontend = '" + @versionFrontend + "'"
         }]
-
       version_my_wallet:
         src: ['build/js/app.js'],
         overwrite: true,
@@ -541,20 +543,31 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-text-replace')
   grunt.loadNpmTasks('grunt-include-source')
 
-  grunt.registerTask "build", [
-    "html2js"
-    "babel:build"
-    "concat:wallet"
-    "concat:qrReader"
-    "concat:bcPhoneNumber"
-    "sass"
-    "concat_css:app"
-    "copy:fonts"
-    "autoprefixer"
-    "includeSource"
-    "copy:images"
-    "merge-json"
-  ]
+  grunt.registerTask "build", () =>
+    skipWebpack = grunt.option('skipWebpack')
+
+    grunt.task.run [
+      "html2js"
+      "babel:build"
+    ]
+
+    if !skipWebpack
+      grunt.task.run [
+        "shell:webpack"
+      ]
+
+    grunt.task.run [
+      "concat:wallet"
+      "concat:qrReader"
+      "concat:bcPhoneNumber"
+      "sass"
+      "concat_css:app"
+      "copy:fonts"
+      "autoprefixer"
+      "includeSource"
+      "copy:images"
+      "merge-json"
+    ]
 
   grunt.registerTask "default", [
     "build"
@@ -566,7 +579,15 @@ module.exports = (grunt) ->
   grunt.registerTask "dist", () =>
     versionFrontend = grunt.option('versionFrontend')
     rootDomain = grunt.option('rootDomain')
+    webSocketURL = grunt.option('webSocketURL')
     apiDomain = grunt.option('apiDomain')
+    network = grunt.option('network')
+
+    @helperAppUrl = grunt.option('helperAppUrl')
+    if !@helperAppUrl
+      console.log('Helper App URL missing')
+      exit(1)
+
     if !versionFrontend
       versionFrontend = "intermediate"
     else if versionFrontend[0] != "v"
@@ -575,30 +596,27 @@ module.exports = (grunt) ->
 
     @versionFrontend = versionFrontend
 
+    if !network
+      network = "bitcoin"
+
+    @network = network
+
     if !rootDomain
       # Production will work with rootURL = "https://blockchain.info/" and "/"
       # Tor will only work with   rootURL = "/"
       console.log("No root domain specified, assuming blockchain.info or tor");
       @rootDomain = null
-
-      grunt.task.run [
-        "replace:root_url"
-        # Web socket URL will default to wss://blockchain.info/inv
-        # Web sockets currently don't work on our Tor site
-        # "replace:web_socket_url"
-        "replace:buy_sell_debug"
-        "replace:buy_sell_coinify"
-      ]
     else
       console.log("Root domain: " + rootDomain)
       @rootDomain = rootDomain
 
-      grunt.task.run [
-        "replace:root_url"
-        "replace:web_socket_url"
-        "replace:buy_sell_debug"
-        "replace:buy_sell_coinify"
-      ]
+    @webSocketURL = webSocketURL
+
+    grunt.task.run [
+      "replace:root_url"
+      "replace:web_socket_url"
+      "replace:helper_app_url"
+    ]
 
     if apiDomain
       @apiDomain = apiDomain
@@ -611,6 +629,7 @@ module.exports = (grunt) ->
     grunt.task.run [
       "replace:version_frontend"
       "replace:version_my_wallet"
+      "replace:network"
       "preprocess:js"
       "concat:landingNotMinifiedDependencies"
       "uglify:landingDependencies"
@@ -619,7 +638,6 @@ module.exports = (grunt) ->
       "uglify:bcQrReader"
       "uglify:bcPhoneNumber"
       "jade"
-      "preprocess:html"
       "copy:main"
       "copy:blockchainWallet"
       "copy:css_dist"

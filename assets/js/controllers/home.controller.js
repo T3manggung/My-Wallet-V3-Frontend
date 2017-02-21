@@ -2,24 +2,19 @@ angular
   .module('walletApp')
   .controller('HomeCtrl', HomeCtrl);
 
-function HomeCtrl ($scope, Wallet, $uibModal) {
+function HomeCtrl ($scope, Wallet, $uibModal, buyStatus) {
   $scope.getTotal = () => Wallet.total('');
-
   $scope.getLegacyTotal = () => Wallet.total('imported');
 
-  $scope.hasLegacyAddresses = () => {
-    if (Wallet.status.isLoggedIn) {
-      return Wallet.legacyAddresses().filter(a => !a.archived).length > 0;
-    } else {
-      return null;
-    }
-  };
+  $scope.activeLegacyAddresses = () => (
+    Wallet.status.isLoggedIn
+      ? Wallet.legacyAddresses().filter(a => !a.archived)
+      : null
+  );
 
-  $scope.activeAccounts = () => {
-    if (Wallet.status.isLoggedIn) {
-      return Wallet.accounts().filter(a => !a.archived);
-    } else {
-      return null;
-    }
-  };
+  $scope.activeAccounts = () => (
+    Wallet.status.isLoggedIn
+      ? Wallet.accounts().filter(a => !a.archived)
+      : null
+  );
 }

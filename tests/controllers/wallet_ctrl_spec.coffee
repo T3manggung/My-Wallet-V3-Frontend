@@ -12,6 +12,7 @@ describe "WalletCtrl", ->
     angular.mock.inject ($injector, $rootScope, $controller) ->
       Wallet = $injector.get("Wallet")
       MyWallet = $injector.get("MyWallet")
+      buyStatus = $injector.get("buyStatus")
       $httpBackend = $injector.get("$httpBackend")
       $cookies = $injector.get("$cookies")
       $rootScope.rootURL = "https://blockchain.info/"
@@ -65,32 +66,16 @@ describe "WalletCtrl", ->
   )
 
   it "should open a popup to send",  inject(($uibModal) ->
-    spyOn($uibModal, "open")
+    spyOn($uibModal, "open").and.callThrough()
     scope.send()
     expect($uibModal.open).toHaveBeenCalled()
   )
 
   it "should open a popup to request",  inject(($uibModal) ->
-    spyOn($uibModal, "open")
+    spyOn($uibModal, "open").and.callThrough()
     scope.request()
     expect($uibModal.open).toHaveBeenCalled()
   )
-
-  describe "redeem from email", ->
-    it "should proceed after login", inject((Wallet, $rootScope, $timeout, $uibModal) ->
-
-      spyOn($uibModal, 'open').and.returnValue(mockModalInstance)
-
-      # Fulfill necessary conditions befor goal can be checked
-      Wallet.status.isLoggedIn = true
-      Wallet.status = { didLoadBalances: true, didLoadTransactions: true }
-      Wallet.goal.claim = {code: "abcd", balance: 100000}
-
-      $rootScope.$digest()
-      $timeout.flush() # Modal won't open otherwise
-
-      expect($uibModal.open).toHaveBeenCalled()
-    )
 
   describe "auto logout", ->
     it "should reset the inactivity time", ->
@@ -125,8 +110,12 @@ describe "WalletCtrl", ->
     )
 
   describe "welcome modal", ->
-    it "should open when firstTime goal is set", inject((Wallet, $rootScope, $timeout, $uibModal) ->
+    it "should open when firstTime goal is set", inject((Wallet, $rootScope, $timeout, $uibModal, buyStatus, $q) ->
+      buyStatus.canBuy = () -> $q.resolve().then($uibModal.open)
       spyOn($uibModal, 'open').and.returnValue(mockModalInstance)
+      spyOn(buyStatus, 'canBuy').and.callThrough()
+
+      $httpBackend.expectGET('/Resources/wallet-options.json').respond({showBuySellTab: true})
 
       Wallet.status.isLoggedIn = true
       Wallet.goal.firstTime = true

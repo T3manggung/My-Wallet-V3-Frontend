@@ -1,5 +1,6 @@
 describe "SettingsAddressesCtrl", ->
   $q = undefined
+  $state = undefined
   scope = undefined
   Wallet = undefined
   Alerts = undefined
@@ -7,9 +8,13 @@ describe "SettingsAddressesCtrl", ->
 
   beforeEach angular.mock.module("walletApp")
 
+  modal =
+    open: ->
+
   beforeEach ->
     angular.mock.inject ($injector, $rootScope, $controller, _$q_) ->
       $q = _$q_
+      $state = $injector.get('$state')
       Wallet = $injector.get("Wallet")
       Alerts = $injector.get("Alerts")
       MyBlockchainApi = $injector.get("MyBlockchainApi")
@@ -36,8 +41,10 @@ describe "SettingsAddressesCtrl", ->
       scope = $rootScope.$new()
       $controller "SettingsAddressesCtrl",
         $scope: scope,
+        $state: $state,
         $stateParams: { account: 0 }
         Wallet: Wallet
+        $uibModal: modal
         paymentRequests: [{ address: '1aaa', label: 'pending', index: 2 }]
 
 
@@ -49,6 +56,16 @@ describe "SettingsAddressesCtrl", ->
 
   it "should create the hd label map", ->
     expect(scope.hdLabels[1]).toEqual('labelled_address')
+
+  it "should open modal to edit an account", ->
+    spyOn(modal, "open")
+    scope.editAccount(scope.account)
+    expect(modal.open).toHaveBeenCalled()
+
+  it "should open modal to reveal the xpub", ->
+    spyOn(modal, "open")
+    scope.revealXpub(scope.account)
+    expect(modal.open).toHaveBeenCalled()
 
   describe "createAddress", ->
     it "should label the next receive address", ->
@@ -131,3 +148,10 @@ describe "SettingsAddressesCtrl", ->
       expect(indexes).toEqual([3, 1])
       indexes = scope.getIndexesForPage(2)
       expect(indexes).toEqual([0])
+
+  it "should redirect to accounts page if account is archived", inject(($state) ->
+    spyOn($state, "go").and.callThrough()
+    scope.account.archived = true
+    scope.$digest()
+    expect($state.go).toHaveBeenCalledWith('wallet.common.settings.accounts_index')
+  )

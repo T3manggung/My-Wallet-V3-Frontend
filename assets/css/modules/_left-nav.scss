@@ -3,6 +3,19 @@
   position: relative;
   @extend .flex-between;
   flex-direction: column;
+  li.header {
+    .message {
+      right: -3px;
+    }
+  }
+}
+
+.tray ~ .wallet-container {
+  li.header {
+    .message-contextual {
+      right: 0px;
+    }
+  }
 }
 
 ul.aside {
@@ -34,11 +47,22 @@ ul.aside {
           color: $security-green;
         }
       }
-      i { margin-right: .55em; line-height: 0; font-size: 1.3em; }
+      i {
+        @extend .f-20;
+        margin-right: .55em;
+        text-align: center;
+        line-height: 0;
+        width: 20px;
+      }
     }
   }
   li.current {
-    background: #EBEBEB;
+    a {
+      i,
+      span {
+        color: $iris;
+      }
+    }
   }
   ul.aside-list{
     background: white;
@@ -49,11 +73,6 @@ ul.aside {
     a {
       span {
         color: $basic-grey;
-      }
-      &.imported-addresses {
-        span {
-          color: $mid-grey !important;
-        }
       }
     }
     li.active{
@@ -119,76 +138,8 @@ ul.aside {
   }
 }
 
-.scroll-hidden {
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-button {
-    width: 0px;
-    height: 0px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #fff;
-    border: 0px none $border-grey;
-    border-radius: 100px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #c9c9c9;
-  }
-  ::-webkit-scrollbar-thumb:active {
-    background: #606060;
-  }
-  ::-webkit-scrollbar-track {
-    background: white;
-    border: 0px none #ff5a28;
-    border-radius: 100px;
-  }
-  ::-webkit-scrollbar-track:hover {
-    background: #ffffff;
-  }
-  ::-webkit-scrollbar-track:active {
-    background: #ededed;
-  }
-  ::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-}
-
-@media (max-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-button {
-    width: 0px;
-    height: 0px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #fff;
-    border: 0px none $border-grey;
-    border-radius: 100px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #c9c9c9;
-  }
-  ::-webkit-scrollbar-thumb:active {
-    background: #606060;
-  }
-  ::-webkit-scrollbar-track {
-    background: white;
-    border: 0px none #ff5a28;
-    border-radius: 100px;
-  }
-  ::-webkit-scrollbar-track:hover {
-    background: #ffffff;
-  }
-  ::-webkit-scrollbar-track:active {
-    background: #ededed;
-  }
-  ::-webkit-scrollbar-corner {
-    background: transparent;
-  } 
+::-webkit-scrollbar {
+  display: none;
 }
 
 
@@ -203,7 +154,7 @@ li.action-bar{
 }
 .settings-nav { margin-top: 10px; }
 .settings-nav-header {
-  background: $light-grey;
+  background: $grey;
 }
 
 @media (max-width: 480px) {

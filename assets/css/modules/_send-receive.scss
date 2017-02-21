@@ -1,4 +1,21 @@
-// SEND & RECEIVE & SIGN MSG
+#send, #receive, #sign-msg, .filter-bar {
+  .ui-select-choices-row-inner,
+  .ui-select-match {
+    label-origin {
+      display: block;
+      overflow: hidden;
+      height: 1.428571429em;
+      > span:first-child {
+        float: left;
+        overflow: auto;
+        max-width: 135px;
+        margin-bottom: -30px;
+        padding-bottom: 30px;
+        display: inline-block;
+      }
+    }
+  }
+}
 
 #send, #receive, #sign-msg {
   .inprv {
@@ -31,7 +48,7 @@
     }
     > div, textarea, .bitcoin-address {
       @extend .mlm;
-      @media (min-width: 769px) {
+      @media (min-width: 768px) {
         max-width: 440px;
         min-width: 440px;
       }
@@ -41,7 +58,7 @@
         min-width: initial;
       }
     }
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
       display: block;
       > label {
         min-width: auto;
@@ -69,30 +86,19 @@
     }
   }
 
-  // when an address is too long
-  .ui-select-choices-row-inner {
-    > span {
-      > div {
-        overflow: hidden;
-        height: 1.428571429em;
-        > span:first-child {
-          float: left;
-          overflow: auto;
-          max-width: 220px;
-          margin-bottom: -30px;
-          padding-bottom: 30px;
-          display: inline-block;
-        }
-      }
-    }
-  }
-
   & + .modal-footer {
     clear: left;
   }
 
+  .ui-select-match {
+    label-origin {
+      > span:first-child {
+        max-width: 200px;
+      }
+    }
+  }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .row {
       display: block;
     }
@@ -106,9 +112,6 @@
 
 #send {
   .destination-input {
-    input, button {
-      height: 34px;
-    }
     input {
       @extend .brdrn;
     }
@@ -154,7 +157,7 @@
   &.advanced-container {
     max-height: 460px; // avoid overflow issues
     .add {
-      background-color: $aaa;
+      background-color: $border-grey;
       border-radius: 100%;
       position: absolute;
       bottom: 20px;
@@ -199,24 +202,24 @@
       .flex-row {
         > span.account {
           text-align: left;
-          @media (max-width: 768px) {
+          @media (max-width: 767px) {
             overflow: hidden;
             text-overflow: ellipsis;
           }
           &.aaa {
-            color: $aaa !important;
+            color: $border-grey !important;
           }
         }
         .helper {
           position: absolute;
-          right: -25px;
-          top: -2px;
+          right: -15px;
+          top: 2px;
         }
       }
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     &.fade {
       opacity: 1 !important;
     }
@@ -278,7 +281,7 @@
 // RECEIVE
 
 #receive {
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     opacity: 1 !important;
   }
   @media (min-width: 769px) {
@@ -310,7 +313,7 @@
       margin-top: 0px;
     }
   }
-  
+
   .amount .form-control {
     min-width: 0;
   }
@@ -334,7 +337,7 @@
     width: 100%;
     height: 1px;
     position: absolute;
-    background-color: $ccc;
+    background-color: $border-grey;
   }
 }
 
@@ -359,7 +362,7 @@
       content: '';
       height: 40%;
       position: absolute;
-      background-color: $ccc;
+      background-color: $border-grey;
     }
     &:before {
       top: 0;
@@ -368,7 +371,7 @@
       bottom: 0;
     }
   }
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     display: block;
     > div {
       width: 100%;
@@ -404,7 +407,7 @@
 }
 
 #sign-msg {
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     opacity: 1 !important;
   }
   @media (min-width: 769px) {
@@ -413,6 +416,6 @@
     @include bc-ng-animate('signature', 'height', '147px', '227px');
   }
   input {
-    border-bottom-color: $eee;
+    border-bottom-color: $border-grey;
   }
 }

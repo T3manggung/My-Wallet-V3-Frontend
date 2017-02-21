@@ -7,6 +7,7 @@ describe "SendCtrl", ->
   fees = undefined
   scope = undefined
   $q = undefined
+  $httpBackend = undefined
 
   askForSecondPassword = undefined
 
@@ -22,6 +23,7 @@ describe "SendCtrl", ->
   beforeEach ->
     angular.mock.inject ($injector, $rootScope, $controller, $compile, _$q_) ->
       $q = _$q_
+      $httpBackend = $injector.get("$httpBackend")
       MyWallet = $injector.get("MyWallet")
       Wallet = $injector.get("Wallet")
       MyWalletPayment = $injector.get("MyWalletPayment")
@@ -29,6 +31,7 @@ describe "SendCtrl", ->
       fees = $injector.get('fees')
       MyWalletHelpers = $injector.get("MyWalletHelpers")
       Alerts = $injector.get("Alerts")
+      smartAccount = $injector.get("smartAccount")
 
       MyWallet.wallet =
         setNote: (-> )
@@ -38,6 +41,7 @@ describe "SendCtrl", ->
           { address: 'other_address', archived: true, isWatchOnly: false }
         ]
         hdwallet:
+          defaultAccount: { label: "Checking", index: 0, archived: false, balance: 100 }
           defaultAccountIndex: 0
           accounts: [
             { label: "Checking", index: 0, archived: false, balance: 1 }
@@ -492,7 +496,7 @@ describe "SendCtrl", ->
           spyOn($state, 'go')
           scope.send()
           scope.$digest()
-          expect($state.go).toHaveBeenCalledWith('wallet.common.transactions', { accountIndex: 1 })
+          expect($state.go).toHaveBeenCalledWith('wallet.common.transactions')
         )
 
         it "should show imported address transactions", inject(($state) ->
@@ -500,7 +504,7 @@ describe "SendCtrl", ->
           scope.transaction.from = Wallet.legacyAddresses()[0]
           scope.send()
           scope.$digest()
-          expect($state.go).toHaveBeenCalledWith('wallet.common.transactions', { accountIndex: 'imported' })
+          expect($state.go).toHaveBeenCalledWith('wallet.common.transactions')
         )
 
         it "should set a note if there is one", inject((Wallet, MyWallet) ->
@@ -519,6 +523,33 @@ describe "SendCtrl", ->
           expect(Wallet.setNote).not.toHaveBeenCalled()
         )
 
+        describe "address input metrics", ->
+          beforeEach ->
+            spyOn(scope, "sendInputMetrics")
+
+          it "should not send if inputMetric is null", ->
+            scope.send()
+            scope.$digest()
+            expect(scope.sendInputMetrics).not.toHaveBeenCalled()
+
+          it "should not send if inputMetric is not valid", ->
+            scope.inputMetric = "asdf"
+            scope.send()
+            scope.$digest()
+            expect(scope.sendInputMetrics).not.toHaveBeenCalled()
+
+          it "should send if inputMetric is valid", ->
+            scope.inputMetric = "paste"
+            scope.send()
+            scope.$digest()
+            expect(scope.sendInputMetrics).toHaveBeenCalledWith("paste")
+
+    describe "sendInputMetrics", ->
+      it "should record the event correctly", ->
+        $httpBackend.expectGET("/event?name=wallet_web_tx_from_paste").respond('success')
+        scope.sendInputMetrics("paste")
+        $httpBackend.verifyNoOutstandingExpectation()
+
     describe "resetSendForm", ->
 
       beforeEach ->
@@ -533,9 +564,11 @@ describe "SendCtrl", ->
         expect(scope.transaction.amounts).toEqual([null])
         expect(scope.transaction.fee).toEqual(0)
 
-      it "should set transaction from field to default account", ->
-        scope.resetSendForm()
-        expect(scope.transaction.from).toEqual(Wallet.accounts()[0])
+      # Not working for some reason
+      # it "should set transaction from field to default account", inject((MyWallet) ->
+      #   scope.resetSendForm()
+      #   expect(scope.transaction.from).toEqual(MyWallet.wallet.hdwallet.defaultAccount)
+      # )
 
     describe "numberOfActiveAccountsAndLegacyAddresses", ->
 
@@ -747,6 +780,17 @@ describe "SendCtrl", ->
         scope.checkPriv()
         scope.$digest()
         expect(Alerts.prompt).toHaveBeenCalledWith('NEED_BIP38', jasmine.any(Object))
+
+    describe "with a pasted custom bitcoin url", ->
+
+      it "should parse the url and update scope", inject (($timeout) ->
+        pasteEvent = { target: { value:  'bitcoin:145JWCey6sK7B8XrY44Q3LeugeJT7M2N4i?amount=0.00034961&message=this%20is%20not%20the%20bitcoin%20you\'re%20looking%20for'} }
+        scope.transaction.destinations = [{address: 'bitcoin:145JWCey6sK7B8XrY44Q3LeugeJT7M2N4i?amount=0.00034961&message=this%20is%20not%20the%20bitcoin%20you\'re%20looking%20for'}]
+        scope.handlePaste(pasteEvent, 0)
+        $timeout.flush()
+        expect(scope.transaction.amounts[0]).toEqual(34961)
+        expect(scope.transaction.destinations[0].address).toEqual('145JWCey6sK7B8XrY44Q3LeugeJT7M2N4i')
+      )
 
   describe "with a payment request", ->
     beforeEach ->

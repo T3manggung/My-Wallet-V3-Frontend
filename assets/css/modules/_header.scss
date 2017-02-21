@@ -20,6 +20,10 @@
   }
   span.ti-menu { font-weight: 900; font-size: 1.5em; position: relative; top: 0px; }
   .navbar-toggle {  padding: 0; margin: 0 10px 0 20px; }
+
+  .search-query {
+    width: 210px;
+  }
 }
 
 #wallet-nav-toggle {
@@ -27,7 +31,7 @@
     display: none;
     padding: 0px 20px;
   }
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     span.ti-angle-down, span.ti-angle-up {
       display: inline-block;
     }
@@ -42,7 +46,7 @@
       overflow: scroll;
       @extend .pts;
       > div > li {
-        border-bottom: 1px solid $ccc;
+        border-bottom: 1px solid $border-grey;
         small, p {
           font-size: 12px;
         }
@@ -137,10 +141,10 @@
 
     li.active {
      a {
-        background-color: #0face5;
+        background-color: transparent;
       }
       a:hover {
-        background-color: #0face5;
+        background-color: transparent;
       }
       a:focus, a:active {
         background-color: transparent;
@@ -148,9 +152,6 @@
 
     }
     > li {
-      a:hover {
-        background-color: #0face5;
-      }
       a:focus, a:active {
         background-color: transparent;
       }
@@ -174,12 +175,18 @@
 }
 
 img#logo {
-  height: 40px;
-  padding-left: 5px;
+  height: 18px;
+  padding-left: 15px;
 }
 
-@media (max-width: 620px) {
-  img#logo { height: 30px; margin-top: 0; }
+.bc-public-header {
+  img#logo {
+    height: 30px;
+    padding-left: 5px;
+  }
+  @media (max-width: 620px) {
+    img#logo { height: 18px; margin-top: 0; }
+  }
 }
 
 .navbar-header {
@@ -192,7 +199,7 @@ img#logo {
   }
   .navbar-brand {
     line-height: 60px;
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
       line-height: 50px;
     }
     img {

@@ -1,21 +1,6 @@
-.landing-page
+.landing-page(translate-namespace="LANDING")
   public-header(i18n-loaded='i18nLoaded')
-  .quickstart
-    #intro-header
-      .flex-center.flex-row.flex-column-mobile.container
-        .flex-1.flex-center.center.flex-column.pvl.phl
-          h5.flex-1.mtn(translate="NEW_USERS")
-          p.flex-1(translate="NEW_USERS_COPY")
-          button.button-success(ui-sref="public.signup" translate="CREATE_NEW")
-        .flex-1.flex-center.center.flex-column.pvl.phl.border-left
-          h5.flex-1.mtn(translate="EXISTING_USERS")
-          p.flex-1(translate="EXISTING_USERS_COPY")
-          button.button-primary(ui-sref="public.login-no-uid" translate="LOGIN_NOW")
-        .flex-1.flex-center.center.flex-column.pvl.phl.hidden-xs.border-left
-          h5.flex-1.mtn(translate="HOW_IT_WORKS")
-          p.flex-1(translate='HOW_IT_WORKS_COPY')
-          a.button-default(href="{{rootURL}}wallet/how-it-works" translate="HOW_IT_WORKS" target="_blank")
-  .banner
+  .banner(data-preflight-tag="LandingPage")
     .flex-column.height-100.flex-center.flex-justify.container
       div.width-100
         h1.center.width-100(translate="MOST_POPULAR_WALLET")
@@ -31,43 +16,43 @@
           span.type-h5.white(translate="COUNTRIES_SERVED")
       .flex-center.flex-column.flex-justify.signup
         .flex-column.pos-rel.width-100-mobile.center
-          button.button-primary.btn.button-vlg.mtl(
+          button.button-primary.btn.button-vlg.button-heavy.mtl(
             type="submit"
             ui-sref="public.signup"
-            translate="CREATE_YOUR_WALLET") 
-          span.type-h5.mtm
-            span(translate="ALREADY_HAVE_WALLET") 
-            a.mls.em-500.white.underline(ui-sref="public.login-no-uid" translate="LOG_IN")
+            translate="CREATE_YOUR_WALLET")
+          span.f-20.mtm(translate="OR")
+          button.button-purple.button-heavy.upper.btn.button-vlg.mtm(
+            type="submit"
+            ui-sref="public.login-no-uid"
+            translate="LOGIN_NOW")
   .newtobitcoin.container
     #newToBTC.container-max-width.container-fluid.width-100
       .flex-column.flex-justify.flex-center.mvvl
-        h2.em-200.mvn.font-4.font-3-mobile.center New To Bitcoin?
+        h2.em-200.mvn.font-4.font-3-mobile.center(translate=".NEW_TO_BITCOIN")
     .new.container-max-width.container-fluid.width-100
         .flex-row.flex-column-mobile.flex-column-med
-          video-container.col-md-6.blue-play-button.small-image(img="img/blockchain-ad-placeholder.jpg" src="https://storage.googleapis.com/bc_public_assets/video/blockchain-ad.mp4")
+          video-container.col-md-6.blue-play-button.small-image(img="img/blockchain-ad-placeholder.jpg" ng-src="adUrl")
           .flex-column.width-50.flex-1.flex-center.flex-justify
             #timeline.flex-row.flex-1.flex-center.mhvl.mhl-mobile.mbl
               img.flex-1(src='img/logo-timeline.png' alt="Blockchain Bitcoin Timeline")
             .bitinf.flex-row.flex-center.mbl.mhvl.mhl-mobile.flex-1
               img.width-3.width-200-mobile.mrl(src='img/logo-what-bitcoin.png' alt="What is Bitcoin")
               .flex-column.flex-1
-                h3.flex-1.mtn.blue What is Bitcoin?
-                p.flex-1
-                  | Like paper money and gold before it, bitcoin is a currency that allows parties to exchange value. Unlike it predecessors, bitcoin is digital and decentralized. For the first time in history, people can exchange value without intermediaries which translates to greater control of funds and lower fees.
+                h3.flex-1.mtn.blue(translate=".WHAT_IS_BITCOIN")
+                p.flex-1(translate=".BITCOIN_IS")
             .bitinf.flex-row.flex-center.mvl.mhvl.mhl-mobile.flex-1
               img.width-3.width-200-mobile.mrl(src='img/logo-why-bitcoin.png' alt="Why use Blockchain Bitcoin Wallet")
               .flex-column.flex-1
-                h3.flex-1.blue Why use it?
-                p.flex-1
-                  | You use bitcoin for many of the same reasons you opt to send an email, stream a movie, or download a song. It’s faster, cheaper, more secure and immutable. And its uses extend beyond the peer to peer payments. In many places, bitcoin is less volatile than the local currency so some use it to store value while others use it to consume at hundreds of thousands of vendors across the globe and online.
+                h3.flex-1.blue(translate=".WHY_USE")
+                p.flex-1(translate=".USE_BECAUSE")
   uib-carousel(active="active" interval="0")
-    h4(translate="Loved by Users. Praised by Geeks. Recognized by the Press.")
+    h4(translate=".LOVED_BY_ALL")
     uib-slide(index="0")
       div
         img(src="img/logo-nytimes.svg" alt="Blockchain Bitcoin Wallet New York Times")
         p(translate="QUOTE_0")
         span.author
-          a(href="http://nyti.ms/1sfHj9b" target="_blank") The New York Times
+          a(href="http://nyti.ms/1sfHj9b" target="_blank" rel="noopener noreferrer") The New York Times
     uib-slide(index="1")
       div
         p(translate="QUOTE_1")
@@ -77,7 +62,7 @@
         img(src="img/logo-wsj.svg" alt="Blockchain Bitcoin Wallet Wall Street Journal")
         p(translate="QUOTE_2")
         span.author
-          a(href="http://on.wsj.com/1u5CFZF" target="_blank") The Wall Street Journal
+          a(href="http://on.wsj.com/1u5CFZF" target="_blank" rel="noopener noreferrer") The Wall Street Journal
     uib-slide(index="3")
       div
         p(translate="QUOTE_3")
@@ -87,7 +72,7 @@
         img(src="img/logo-techcrunch.svg" alt="Blockchain Bitcoin Wallet Techcrunch")
         p(translate="QUOTE_4")
         span.author
-          a(href="http://techcrunch.com/2014/07/19/blockchain-releases-new-android-wallet-app-to-put-bitcoin-into-everyones-hands/" target="_blank") Tech Crunch
+          a(href="http://techcrunch.com/2014/07/19/blockchain-releases-new-android-wallet-app-to-put-bitcoin-into-everyones-hands/" target="_blank" rel="noopener noreferrer") Tech Crunch
     uib-slide(index="5")
       div
         p(translate="QUOTE_5")
@@ -97,7 +82,7 @@
         img(src="img/logo-telegraph.svg" alt="Blockchain Bitcoin Wallet Telegraph")
         p(translate="QUOTE_6")
         span.author
-          a(href="http://bit.ly/1sdIEzZ" target="_blank") The Telegraph
+          a(href="http://bit.ly/1sdIEzZ" target="_blank" rel="noopener noreferrer") The Telegraph
     uib-slide(index="7")
       div
         p(translate="QUOTE_7")
@@ -150,7 +135,7 @@
     form.form-horizontal(
       role="form"
       name="signupForm"
-      ng-submit="signup()"
+      ng-submit="signup(fields.email)"
       autocomplete="off"
       novalidate)
       .form-group.flex-row.flex-center.flex-column-mobile.mbvl(ng-class="{'has-error': signupForm.email.$invalid && signupForm.email.$touched}")
@@ -160,7 +145,7 @@
           ng-model="fields.email"
           placeholder="jane@doe.com"
           required)
-        button.button-success.btn.button-vlg.mtl(
+        button.button-primary.btn.button-vlg.button-heavy.mtl(
           type="submit"
           ng-disabled="signupForm.$invalid"
           translate="GET_STARTED")

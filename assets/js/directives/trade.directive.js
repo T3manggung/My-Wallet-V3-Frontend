@@ -9,8 +9,10 @@ function trade ($rootScope, Alerts, MyWallet, $timeout, $interval, buySell) {
     restrict: 'A',
     replace: true,
     scope: {
+      disabled: '=',
       trade: '=',
-      buy: '='
+      buy: '=',
+      usa: '='
     },
     templateUrl: 'templates/trade.jade',
     link: link
@@ -30,15 +32,11 @@ function trade ($rootScope, Alerts, MyWallet, $timeout, $interval, buySell) {
     scope.update();
     scope.status = {};
     scope.expiredQuote = new Date() > scope.trade.quoteExpireTime;
+    scope.dateFormat = 'd MMMM yyyy, ' + (scope.usa ? 'h:mm a' : 'HH:mm');
 
-    scope.cancel = (trade) => {
-      scope.status.canceling = true;
-      Alerts.confirm('CONFIRM_CANCEL_TRADE', {
-        action: 'CANCEL_TRADE',
-        cancel: 'GO_BACK'
-      }).then(() => trade.cancel(), () => {})
-        .catch((e) => { Alerts.displayError('ERROR_TRADE_CANCEL'); })
-        .finally(() => scope.status.canceling = false);
+    scope.cancel = () => {
+      scope.disabled = true;
+      buySell.cancelTrade(scope.trade).finally(() => scope.disabled = false);
     };
 
     scope.triggerBuy = () => {
@@ -57,10 +55,24 @@ function trade ($rootScope, Alerts, MyWallet, $timeout, $interval, buySell) {
       scope.trade.btcExpected().then(success);
     };
 
+    scope.logDetails = (trade) => {
+      console.log('------------ Details ------------');
+      console.log('Trade ID:', trade.id);
+      console.log('Trade State:', trade.state);
+      console.log('Created At:', trade.createdAt);
+      console.log('Receive Address:', trade.receiveAddress);
+    };
+
     scope.$watch('trade.state', scope.update);
     scope.$watch('expiredQuote', (newVal, oldVal) => {
       if (newVal) scope.updateBTCExpected();
       else scope.status = {};
+    });
+    scope.$watchGroup(['disabled', 'trade.state'], () => {
+      scope.canCancel =
+        !scope.disabled &&
+        scope.trade.state === 'awaiting_transfer_in' &&
+        angular.isFunction(scope.trade.cancel);
     });
   }
 }

@@ -1,29 +1,45 @@
 .type-xs { font-size: .75em; }
 .type-sm { font-size: .9em; }
 .type-h5 { font-size: 1.2em; }
+.type-md { font-size: 1.3em; }
 .type-h4 { font-size: 1.5em; }
 .type-lbl { font-size: 1.1em; }
 .type-lrg { font-size: 2em; }
 .type-med { font-size: 2.2em; }
 .title { font-size: 3.5em; }
+.type-yuge { font-size: 5em; }
+
+.f-36 { font-size: 36px; }
+.f-24 { font-size: 24px; }
+.f-20 { font-size: 20px; }
+.f-16 { font-size: 16px; }
+.f-14 { font-size: 14px; }
+.f-12 { font-size: 12px; }
+
+.alt-font { font-family: 'GillSans'; }
+.montserrat { font-family: 'Montserrat'; }
+
 .underline { text-decoration: underline; &:hover { text-decoration: underline; } }
 .underline-blue { border-bottom: 2px solid $blue; }
 .pointer { cursor: pointer; }
 .right-align { text-align: right; }
 .left-align { text-align: left; }
 .center-align { text-align: center; }
-.line-height { line-height: 1.75; }
+.center { text-align: center; }
 .shadow { text-shadow: 0 1px 1px #ccc; }
-.em-alt { text-transform: uppercase; }
 .no-select { user-select: none; }
 .break-word { word-break: break-word; }
 .long-input { overflow-wrap: break-word; }
 .text { font-size: 14px; } //use pixels to normalize with Bootstrap instead of em's
-.colon:after { content: ':' }
-.capitalize { text-transform: capitalize; }
+.colon:after { content: ':'; }
+.period:after { content: '.';}
+.exclaim:after { content: '!';}
 .upper { text-transform: uppercase; }
+.capitalize { text-transform: capitalize; }
 .italic { font-style: italic; }
 .parens { &:before { content: '('; } &:after { content: ')'; } }
+.ellipsis:after { content: '...'; }
+.flip { transform: rotateY(180deg); }
 
 .text-overflow-hidden, .ui-select-match-text {
   text-overflow: ellipsis;
@@ -31,6 +47,16 @@
   white-space: nowrap;
   width: calc(100% - 10px);
   display: block;
+}
+
+@media (max-width: 767px) {
+  .left-align-mobile { text-align: left; }
+  .center-mobile { text-align: center; }
+}
+
+@media (max-width: 991px) {
+  .left-align-tablet { text-align: left; }
+  .center-tablet { text-align: center; }
 }
 
 $multiplier: 100;
@@ -51,7 +77,7 @@ $multiplier: 100;
 }
 
 @for $i from 1 through 5 {
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .font-#{$i}-mobile {
       font-size: #{$i}em;
     }

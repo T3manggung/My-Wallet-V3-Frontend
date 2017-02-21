@@ -19,7 +19,9 @@ const modules = [
   'sharedDirectives',
   'oc.lazyLoad',
   // Not needed for landing page, but loading it now for the config step below:
-  'ui.select'
+  'ui.select',
+  // Not needed for landing page, TODO: lazy load
+  'ngFileUpload'
 ];
 
 angular.module('walletApp', modules)
@@ -51,6 +53,7 @@ angular.module('walletApp', modules)
   var bcPhoneNumberLazyLoadFiles = [
     'js/bc-phone-number.min.js'
   ];
+  $compileProvider.debugInfoEnabled(false);
   /* @endif */
 
   $ocLazyLoadProvider.config({
@@ -69,17 +72,22 @@ angular.module('walletApp', modules)
   });
 })
 .constant('whatsNew', [
+  { title: 'BUY_BITCOIN', desc: 'BUY_BITCOIN_EXPLAIN', date: new Date('12/15/2016'), ref: 'wallet.common.buy-sell' },
   { title: 'EXPORT_HISTORY', desc: 'EXPORT_HISTORY_EXPLAIN', date: 1466521300000 },
   { title: 'WHATS_NEW', desc: 'WHATS_NEW_EXPLAIN', date: 1463716800000 },
   { title: 'SIGN_VERIFY', desc: 'SIGN_VERIFY_EXPLAIN', date: 1462161600000 },
   { title: 'TRANSFER_ALL', desc: 'TRANSFER_ALL_EXPLAIN', date: 1461556800000 },
   { title: 'DEV_THEMES', desc: 'DEV_THEMES_EXPLAIN', date: 1474862400000 }
 ])
-// .run(($rootScope, $uibModal, $state, MyWallet, $q, currency, $timeout) => {
-.run(($rootScope, $uibModal, $state, $q, $timeout, $location) => {
+.run(($rootScope, $uibModal, $state, $q, $timeout, $location, languages) => {
   $rootScope.$safeApply = (scope = $rootScope, before) => {
     before = before;
     if (!scope.$$phase && !$rootScope.$$phase) scope.$apply(before);
+  };
+
+  $rootScope.safeWindowOpen = (url) => {
+    let otherWindow = window.open(url, '_blank');
+    otherWindow.opener = null;
   };
 
   $rootScope.browserCanExecCommand = (
@@ -114,11 +122,36 @@ angular.module('walletApp', modules)
     // These are set by grunt dist:
     $rootScope.versionFrontend = null;
     $rootScope.versionMyWallet = null;
-    $rootScope.buySellDebug = true;
+
+    // Not set by grunt dist:
+    $rootScope.isProduction = $rootScope.rootURL === 'https://blockchain.info/' || $rootScope.rootURL === '/';
+    $rootScope.buySellDebug = false;
 
     console.info(
       'Using My-Wallet-V3 Frontend %s and My-Wallet-V3 v%s, connecting to %s',
       $rootScope.versionFrontend, $rootScope.versionMyWallet, $rootScope.rootURL
     );
+
+    if ($rootScope.sfoxUseStaging === undefined) {
+      $rootScope.sfoxUseStaging = null;
+    }
+
+    if ($rootScope.sfoxUseStaging) {
+      console.info(
+        'Using SFOX staging environment with API key %s, Plaid environment %s and Sift Science key %s.',
+        $rootScope.sfoxApiKey,
+        $rootScope.sfoxPlaidEnv,
+        $rootScope.sfoxSiftScienceKey
+      );
+    }
   });
+
+  let code = languages.parseFromUrl($location.absUrl());
+  if (code) languages.set(code);
+
+  $rootScope.installLock = function () {
+    this.locked = false;
+    this.lock = () => { this.locked = true; };
+    this.free = () => { this.locked = false; };
+  };
 });

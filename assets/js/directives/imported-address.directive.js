@@ -10,6 +10,7 @@ angular.module('walletApp').directive('importedAddress', (Wallet, $translate, $u
     link: (scope, elem, attrs, ctrl) => {
       scope.errors = {label: null};
       scope.status = {edit: false};
+      scope.settings = Wallet.settings;
 
       scope.showAddress = () => {
         $uibModal.open({
@@ -17,8 +18,7 @@ angular.module('walletApp').directive('importedAddress', (Wallet, $translate, $u
           controller: 'RequestCtrl',
           resolve: {
             destination: () => scope.address,
-            focus: () => true,
-            hasLegacyAddress: () => null
+            focus: () => true
           },
           windowClass: 'bc-modal auto'
         });

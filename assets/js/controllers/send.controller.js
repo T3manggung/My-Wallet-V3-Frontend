@@ -2,7 +2,7 @@ angular
   .module('walletApp')
   .controller('SendCtrl', SendCtrl);
 
-function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalInstance, $timeout, $state, $filter, $stateParams, $translate, paymentRequest, format, MyWalletHelpers, $q, $http, fees) {
+function SendCtrl ($scope, $rootScope, $log, Wallet, Alerts, currency, $uibModal, $uibModalInstance, $timeout, $state, $filter, $stateParams, $translate, paymentRequest, format, MyWalletHelpers, $q, $http, fees, smartAccount) {
   $scope.status = Wallet.status;
   $scope.settings = Wallet.settings;
   $scope.alerts = [];
@@ -16,6 +16,9 @@ function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalI
   $scope.confirmationStep = false;
   $scope.advanced = false;
   $scope.building = false;
+
+  $scope.inputMetricTypes = ['qr', 'paste', 'uri', 'dropdown'];
+  $scope.inputMetric = null;
 
   $scope.fiatCurrency = Wallet.settings.currency;
   $scope.btcCurrency = Wallet.settings.btcCurrency;
@@ -87,7 +90,8 @@ function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalI
 
   $scope.resetSendForm = () => {
     $scope.transaction = angular.copy($scope.transactionTemplate);
-    $scope.transaction.from = Wallet.accounts()[Wallet.my.wallet.hdwallet.defaultAccountIndex];
+    $scope.transaction.from = smartAccount.getDefault();
+    console.log($scope.transaction.from);
     $scope.setPaymentFee();
 
     // Remove error messages:
@@ -100,7 +104,7 @@ function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalI
       templateUrl: 'partials/send.jade',
       windowClass: 'bc-modal initial',
       controller: 'SendCtrl',
-      resolve: { paymentRequest }
+      resolve: {paymentRequest}
     }), 500);
     $uibModalInstance.dismiss();
   };
@@ -157,14 +161,15 @@ function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalI
       $uibModalInstance.close('');
       Wallet.beep();
 
+      if ($scope.inputMetricTypes.indexOf($scope.inputMetric) > -1) {
+        $scope.sendInputMetrics($scope.inputMetric);
+      }
+
       let note = $scope.transaction.note;
       if (note !== '') Wallet.setNote({ hash: tx.txid }, note);
 
-      let index = $scope.transaction.from.index;
-      if (index == null) index = 'imported';
-
-      if (!($state.current.name === 'wallet.common.transactions' || $stateParams.accountIndex === '')) {
-        $state.go('wallet.common.transactions', { accountIndex: index });
+      if ($state.current.name !== 'wallet.common.transactions') {
+        $state.go('wallet.common.transactions');
       }
 
       let message = MyWalletHelpers.tor() ? 'BITCOIN_SENT_TOR' : 'BITCOIN_SENT';
@@ -179,6 +184,11 @@ function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalI
 
     Wallet.askForSecondPasswordIfNeeded().then(signAndPublish)
       .then(transactionSucceeded).catch(transactionFailed);
+  };
+
+  $scope.sendInputMetrics = (metric) => {
+    let root = $rootScope.rootURL ? $rootScope.rootURL : '/';
+    $http.get(`${root}event?name=wallet_web_tx_from_${metric}`);
   };
 
   $scope.getToLabels = () => {
@@ -232,22 +242,12 @@ function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalI
 
   let unwatchDidLoad = $scope.$watch('status.didLoadBalances', (didLoad) => {
     if (!didLoad || $scope.origins.length !== 0) return;
-    let defaultIdx = Wallet.my.wallet.hdwallet.defaultAccountIndex;
-    let selectedIdx = parseInt($stateParams.accountIndex, 10);
-    let idx = isNaN(selectedIdx) ? defaultIdx : selectedIdx;
-
-    let accounts = Wallet.accounts().filter(a => !a.archived && a.index != null);
-    let addresses = Wallet.legacyAddresses().filter(a => !a.archived);
-
-    $scope.origins = accounts.concat(addresses).map(format.origin);
-
-    accounts.forEach(a => {
-      if (a.index === idx) $scope.transaction.from = format.origin(a);
-    });
-
+    $scope.transaction.from = smartAccount.getDefault();
+    $scope.origins = smartAccount.getOptions();
     $scope.originsLoaded = true;
 
     if (paymentRequest.address) {
+      $scope.inputMetric = 'uri';
       $scope.applyPaymentRequest(paymentRequest, 0);
     } else if (paymentRequest.toAccount != null) {
       $scope.transaction.destinations[0] = format.origin(paymentRequest.toAccount);
@@ -402,6 +402,20 @@ function SendCtrl ($scope, $log, Wallet, Alerts, currency, $uibModal, $uibModalI
       }
     }
     return $q.resolve();
+  };
+
+  $scope.handlePaste = (event, index) => {
+    let destinations = [];
+    $timeout(() => {
+      event.target.value
+        ? destinations.push({address: event.target.value})
+        : destinations = $scope.transaction.destinations;
+      const result = Wallet.parseBitcoinURL(destinations, index);
+      $scope.transaction.destinations[index].address = result.address;
+      $scope.transaction.amounts[index] = result.amount;
+      index === 0 ? $scope.transaction.note = result.note : '';
+      $scope.setPaymentAmount(); // keep
+    }, 250);
   };
 
   $scope.finalBuild = () => $q((resolve, reject) => {

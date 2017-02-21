@@ -3,11 +3,14 @@
   margin-bottom: 3em;
   .label {
     font-weight: normal;
-    margin-left: 10px;
+    margin-left: 5px;
   }
   .label-warning { background-color: $security-red; }
   .label-success { background-color: $security-green; }
-  .label-success, .label-warning {
+  .label-success,
+  .label-warning,
+  .label-default,
+  .label-primary {
     @extend .btn-xs;
     display: inline-block;
   }
@@ -28,7 +31,7 @@
   }
   table {
     th {
-      background-color: $light-grey;
+      background-color: $grey;
     }
     td, th {
       border: 1px solid $border-grey;
@@ -38,64 +41,40 @@
   // Preferences
   .clearfix {
     .form-group {
-      &:hover { background: $hover-blue; }
-      @media(max-width: 992px) {
+      @media(max-width: 991px) {
         .setting-result {
           clear: left;
         }
       }
     }
   }
-  .imported-addresses-container {
-    .dropdown-menu {
-      @media (min-width: 769px) {
-        left: auto !important;
-        right: 0px !important;
-      }
-      > li > a {
-        font-size: small;
-        &:before {
-          @extend .prm;
-        }
-      }
-    }
-  }
   // Accounts & Addresses
-  @media (max-width: 900px) {
-    .accounts-container,
-    .addresses-container,
-    .imported-addresses-container {
+  @media (max-width: 991px) {
+    .accounts-container {
       width: 100%;
       tr {
         height: auto;
         display: block;
         position: relative;
+        border-bottom: 1px solid $grey;
         td {
           border: 0px;
           padding: 0px;
           display: block;
           margin: 10px 0;
-          button {
-            display: block;
-            margin-top: 10px;
-          }
           &:first-child {
+            float: left;
             padding-top: 10px;
-            border-top: 1px solid $grey;
+            > span:first-child {
+              display: block;
+            }
           }
-        }
-      }
-    }
-    .addresses-container,
-    .imported-addresses-container {
-      tr {
-        &:first-child {
-          display: none;
-        }
-        td {
-          button {
-            display: inline-block;
-            margin-top: 0px;
+          &:nth-child(2):not(.address-label) {
+            float: right;
+            padding-top: 10px;
+          }
+          &:last-child {
+            clear: both;
           }
         }
       }
@@ -106,33 +85,87 @@
 .inneredit { padding: 10px 15px 0;}
 
 table.accounts-container {
-
+  margin-bottom: 40px;
   tr {
-    height: 66px;
+    height: 80px;
+    &:first-child td {
+      border-top: 0px;
+    }
+    &:last-child td {
+      border-bottom: 0px;
+    }
+    &.short {
+      height: 40px;
+    }
   }
 
   td {
+    padding-left: 0px;
     border-left: none;
     border-right: none;
     border-top: 1px solid $grey;
     border-bottom: 1px solid $grey;
+    &.center {
+      > span {
+        min-width: 100px;
+      }
+    }
   }
 
-  .account-label {
-    font-size: 12pt;
-    font-weight: 500;
+  @media (min-width: 992px) {
+    &.addresses {
+      td:first-child,
+      td:last-child, {
+        padding: 10px 25px;
+      }
+      td:first-child {
+        border-left: 1px solid $grey;
+      }
+      td:last-child {
+        border-right: 1px solid $grey;
+      }
+      tr:first-child td {
+        border-top: 1px solid $grey;
+      }
+      tr:last-child td {
+        border-bottom: 1px solid $grey;
+      }
+    }
   }
 
-  .label-primary {
-    display: inline-block;
-    @extend .btn-xs;
-    color: white;
-  }
+  @media (max-width: 991px) {
+    tr {
+      height: 80px;
+      &:before {
+        content: '';
+        display: table;
+      }
+      &:after {
+        clear: both;
+        content: '';
+        display: table;
+      }
+    }
 
-  &.imported-addresses{
-    color: $mid-grey;
+    &.addresses {
+      tr {
+        padding-left: 15px;
+        padding-right: 15px;
+        border-left: 1px solid $grey;
+        border-right: 1px solid $grey;
+        &:first-child {
+          height: 40px;
+          border-top: 1px solid $grey;
+          td {
+            padding-top: 0px;
+          }
+        }
+        &:not(:first-child) td:last-child {
+          padding-bottom: 10px;
+        }
+      }
+    }
   }
-
 }
 
 .intl-tel-input { margin-bottom: 10px; }
@@ -141,8 +174,8 @@ table.accounts-container {
 .well {
   padding: 15px;
   margin-bottom: 20px;
-  background-color: $pale-yellow;
-  border-left: 5px solid $security-yellow;
+  background-color: $moccasin;
+  border-left: 5px solid $dandelion;
   line-height: 1.5em;
   font-size: 1.1em;
 }
@@ -169,48 +202,48 @@ table.accounts-container {
 }
 
 .settings {
-  td.address-label {
-    height: 44px;
-    > span {
-      display: inline-block;
-      border-bottom: 1px solid transparent;
-    }
+  .form-group {
     .col-sm-12 {
-      padding-left: 0px;
+      padding: 0px;
     }
-    form[name="bcAsyncForm"] {
-      > div {
-        @extend .flex-row;
-        @extend .flex-center;
-        @extend .flex-between;
-        > div:first-child {
-          @extend .flex-1;
-        }
-        input {
-          font-weight: normal;
-          margin-bottom: 1px;
-          font-size: small;
-          display: block;
-          width: 80%;
-        }
-        button {
-          padding: 0px;
-        }
-        button.button-primary {
-          padding: 2px 4px;
-        }
+  }
+  form[name="bcAsyncForm"] {
+    > div {
+      @extend .flex-row;
+      @extend .flex-center;
+      @extend .flex-between;
+      > div:first-child {
+        @extend .flex-1;
+      }
+      input {
+        font-weight: normal;
+        margin-bottom: 0px;
+        font-size: small;
+        display: block;
+        width: 90%;
+      }
+      button {
+        padding: 0px;
+      }
+      button.button-primary {
+        padding: 2px 4px;
       }
     }
   }
 }
 
-@media (max-width: 768px) {
+.account-settings {
+  position: relative;
+  top: 45px;
+}
+
+@media (max-width: 767px) {
   .settings {
     padding: 15px 15px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .pbm-m {
     padding-bottom: 0.625em;
   }

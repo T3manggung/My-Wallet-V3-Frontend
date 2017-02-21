@@ -11,6 +11,7 @@ module.exports = function (config) {
 
     files: [
       'node_modules/babel-polyfill/dist/polyfill.js',
+      'node_modules/jasmine-es6-promise-matchers/jasmine-es6-promise-matchers.js',
       'bower_components/angular/angular.js',
       'bower_components/angular-sanitize/angular-sanitize.js',
       'bower_components/angular-mocks/angular-mocks.js',
@@ -25,6 +26,7 @@ module.exports = function (config) {
       'bower_components/angular-inview/angular-inview.js',
       'bower_components/browserdetection/src/browser-detection.js',
       'bower_components/compare-versions/index.js',
+      'bower_components/ng-file-upload/ng-file-upload.min.js',
       'tests/app.module.spec.js',
       'assets/js/landingCtrl.js',
       'assets/js/core/core.module.js',
@@ -40,7 +42,7 @@ module.exports = function (config) {
       'assets/js/walletLazyLoad.js',
       'assets/js/core/*.js',
       'tests/filters/*.coffee',
-      'tests/controllers/*.coffee',
+      'tests/controllers/**/*.coffee',
       'tests/components/*.coffee',
       'tests/services/**/*.coffee',
       'tests/directives/*.coffee',
@@ -117,7 +119,15 @@ module.exports = function (config) {
       }
     },
 
-    frameworks: ['jasmine'],
+    browserify: {
+      debug: true,
+      transform: [
+        'babelify',
+        ['browserify-istanbul', { instrumenter: require('isparta') }]
+      ]
+    },
+
+    frameworks: ['jasmine', 'browserify'],
 
     browsers: ['PhantomJS'],
 
@@ -125,19 +135,11 @@ module.exports = function (config) {
 
     coverageReporter: {
       reporters: [
-        // Fails with: TypeError: Cannot read property 'text' of undefined
-        // { type : 'html', dir : 'coverage/'},
+        {type: 'html', dir: 'coverage/'},
         {type: 'lcovonly', dir: 'coverage-lcov/'}
       ],
 
-      subdir: '.',
-
-      instrumenters: {isparta: require('isparta')},
-
-      instrumenter: {
-        '**/*.js': 'isparta'
-      }
-
+      subdir: '.'
     }
   };
 

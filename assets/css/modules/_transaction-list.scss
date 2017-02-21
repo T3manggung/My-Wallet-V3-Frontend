@@ -7,7 +7,7 @@
   }
   .transaction-feed {
     position: relative;
-    top: 50px;
+    top: 60px;
     .loading .col-xs-2 {
       text-align: center;
       margin-bottom: 10px;
@@ -15,10 +15,10 @@
   }
   a.date { padding-top: 10px; }
   .transaction {
-    border-bottom: 1pt solid $eee;
+    border-bottom: 1pt solid $border-grey;
     padding: 15px 30px;
     position: relative;
-    &:hover { background: $hover-blue; }
+    &:hover { background: $grey; }
     .timestamp{
       font-style: italic;
     }
@@ -29,20 +29,20 @@
     .feed-info {
       width: 120px;
     }
-    .action.incoming_tx{
-      color: $receive-green;
+    .incoming_tx {
+      color: $received;
     }
-    .action.outgoing_tx{
-     color: $send-red;
+    .outgoing_tx {
+      color: $sent;
     }
-    .action.local_tx{
-     color: $transfer-blue;
+    .local_tx {
+     color: $transferred;
     }
     .tx-toggle {
-      top: 31px;
+      top: 25px;
       left: 10px;
-      height: 100%;
       position: absolute;
+      font-size: 8px;
     }
     button.amount {
       padding: 10px;
@@ -58,12 +58,13 @@
     transaction-description {
       .progress {
         @extend .mbn;
-        background: rgba(0,0,0,0.2);
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(0, 0, 0, 0.4);
       }
       .progress-bar {
         background-color: $blue;
         &.progress-bar-success {
-          background-color: $success;
+          background-color: $jade;
         }
         &[aria-valuenow="0"] span {
           color: $basic-grey;
@@ -80,9 +81,12 @@
           color: $blue;
         }
       }
+      .pending-clock {
+        width: 17px;
+      }
     }
   }
-  @media (max-width: 992px) {
+  @media (max-width: 991px) {
     .transaction {
       .mtvl {
         flex: 2 0 0;
@@ -94,31 +98,43 @@
       }
     }
   }
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .transaction {
       padding-left: 10px;
       padding-right: 10px;
     }
   }
   .description {
-    color: $dark-grey;
+    color: $basic-grey;
   }
   .feed-details {
-    border-top: 1px solid $eee;
+    border-top: 1px solid $border-grey;
   }
   .tx-note {
     max-width: 100%;
     word-wrap: break-word;
   }
+  .tx-warning {
+    left: -37px;
+    bottom: -2px;
+  }
+
+  font-size: 16px;
+  font-weight: 300;
+  font-family: GillSans-Light;
+
+  .rotated {
+    transform: rotate(-90deg);
+  }
 }
 
 .transaction-card {
-  background-color: $light-blue;
-  border: 1px solid $eee;
+  background-color: $grey;
+  border: 1px solid $border-grey;
   border-radius: 5px;
   min-width: 50vw;
   font-size: 1.1em;
-  @media (max-width: 992px) {
+  @media (max-width: 991px) {
     width: 95%;
   }
   .tx-status{
@@ -132,7 +148,7 @@
   button.amount{padding: 10px;height: auto;width: 100%;}
   span.you{opacity: .5; font-style: italic;padding-right: 5px;}
   .tx-sender, .tx-receiver {
-    @media (max-width: 992px) {
+    @media (max-width: 991px) {
       overflow: hidden;
       label + ul, &.tx-sender span {
         width: calc(100% - 50px);
@@ -159,7 +175,7 @@
       padding: 0px;
     }
     .border-left {
-      border-top: 1px solid $eee;
+      border-top: 1px solid $border-grey;
       -webkit-flex-wrap: wrap;
       -ms-flex-wrap: wrap;
       margin-top: 0.625em;
@@ -203,17 +219,9 @@ button.amount {
 }
 
 button {
-  &.intra-wallet  { background: $transfer-blue; }
-  &.spent { background: $send-red; }
-  &.received {
-    background: $receive-green;
-    span.glyphicon {
-      padding-left: 10px;
-    }
-    &:hover {
-      color:white;
-    }
-  }
+  &.intra-wallet  { @extend .bg-transferred; }
+  &.received { @extend .bg-received; }
+  &.spent { @extend .bg-sent; }
 }
 .unconfirmed { opacity: 0.5; }
 
@@ -223,17 +231,17 @@ button {
   textarea {
     resize: none;
     height: 60px;
-    border-color: $eee;
+    border-color: $border-grey;
     padding: 10px 0px 0px 10px;
   }
-  @media (min-width: 769px) {
+  @media (min-width: 768px) {
     .input {
       width: 100%;
       top: 1.5em;
       left: 0;
     }
   }
-  @media (max-width: 992px) {
+  @media (max-width: 991px) {
     .input.pos-abs {
       top: 0px;
       position: relative;
@@ -244,9 +252,12 @@ button {
 a.date,p.date { color: $black; }
 
 .amountTotal {
+  font-family: Montserrat;
+  font-weight: 300;
   float: none;
   min-width: 130px;
   text-transform: none;
+  padding: 7px 8px 7px 8px;
 }
 
 .from, .to{
@@ -272,7 +283,7 @@ a.date,p.date { color: $black; }
   .amountTotal{float: right;}
 }
 
-@media(max-width: 902px) {
+@media(max-width: 991px) {
   .tx-bci-link {
     font-size: .8em;
   }

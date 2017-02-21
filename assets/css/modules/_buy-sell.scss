@@ -1,8 +1,18 @@
 .buy-sell {
   position: relative;
   padding: 20px 30px 0 30px;
-  @media (max-width: 992px) {
-    padding: 20px 10px 0 10px;
+  margin-bottom: 60px;
+  @media (max-width: 991px) {
+    padding: 10px 10px 0 10px;
+    .width-50 {
+      margin: 0px;
+      & + .width-50 {
+        margin-top: 1.25em;
+      }
+    }
+    .quick-start {
+      margin-top: 0px;
+    }
   }
   &.loading {
     height: 100%;
@@ -38,7 +48,7 @@
     }
   }
   .kyc-status {
-    background-color: $light-grey;
+    background-color: $grey;
   }
 }
 
@@ -80,14 +90,22 @@
   }
 }
 
+.sfox-logo {
+  img { width: 60px; }
+}
+
+.partner-logo {
+  height: 44px;
+}
+
 .payment-methods {
   input {
-    & ~ .flex-column img {
+    & ~ .flex-row img {
       width: 30px;
       &.checked { display: none; }
     }
   }
-  input:checked ~ .flex-column img {
+  input:checked ~ .flex-row img:not(.cc-shadow) {
     display: none;
     &.checked { display: inline-block; }
   }
@@ -124,48 +142,72 @@
         height: 500px;
         #isx-iframe {
           height: 650px;
+          @media (max-width: 767px) {
+            height: 950px;
+          }
         }
       }
       &.secret {
         height: 400px;
         #isx-iframe {
           height: 400px;
+          @media (max-width: 767px) {
+            height: 700px;
+          }
         }
       }
       &.otp {
         height: 415px;
         #isx-iframe {
-          height: 415px;
+          height: 445px;
+          @media (max-width: 767px) {
+            height: 745px;
+          }
         }
       }
       &.otp-pin {
         height: 500px;
         #isx-iframe {
           height: 632px;
+          @media (max-width: 767px) {
+            height: 930px;
+          }
         }
       }
       &.pin {
         height: 366px;
         #isx-iframe {
           height: 366px;
+          @media (max-width: 767px) {
+            height: 600px;
+          }
         }
       }
       &.verify-pin {
         height: 347px;
         #isx-iframe {
           height: 347px;
+          @media (max-width: 767px) {
+            height: 650px;
+          }
         }
       }
       &.kyc {
         height: 500px;
         #isx-iframe {
           height: 700px;
+          @media (max-width: 767px) {
+            height: 1460px;
+          }
         }
       }
       &.documents {
         height: 500px;
         #isx-iframe {
           height: 520px;
+          @media (max-width: 767px) {
+            height: 1450px;
+          }
         }
       }
       // default height
@@ -199,35 +241,52 @@
     -ms-transform: scale(-1, 1);
     transform: scale(-1, 1);
   }
-  i.ti-credit-card.bank {
-    position: relative;
-    &:before {
-      opacity: 0;
-    }
+}
+
+i.ti-credit-card.bank {
+  position: relative;
+  &.bank-lrg {
     &:after {
-      top: 8px;
-      left: 2px;
-      content: '';
-      width: 22px;
-      height: 22px;
-      display: block;
-      position: absolute;
-      background-size: cover;
-      background-image: url('../img/bank.png');
+      width: 39px;
+      height: 39px;
     }
   }
-  .blue {
-    i.ti-credit-card.bank {
-      &:after {
-        background-image: url('../img/bank-blue.png');
-      }
+  &:before {
+    opacity: 0;
+  }
+  &:after {
+    content: '';
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-image: url('../img/bank.png');
+  }
+}
+
+.sfox-signup {
+  i.ti-credit-card.bank {
+    &:after {
+      top: 0px;
     }
   }
-  .success {
-    i.ti-credit-card.bank {
-      &:after {
-        background-image: url('../img/bank-success.png');
-      }
+}
+
+.blue {
+  i.ti-credit-card.bank {
+    &:after {
+      background-image: url('../img/bank-blue.png');
+    }
+  }
+}
+.success {
+  i.ti-credit-card.bank {
+    &:after {
+      background-image: url('../img/bank-success.png');
     }
   }
 }
@@ -268,8 +327,10 @@
 }
 
 .modal .buy-steps {
-  width: 450px;
   margin: auto;
+  @media (min-width: 768px) {
+    width: 450px;
+  }
 }
 
 .pos-rel {
@@ -290,7 +351,7 @@
   }
 }
 
-#buysell {
+.buy-sell {
   table th:last-child {
     padding-right: 36px;
   }
@@ -304,52 +365,147 @@
   position: absolute;
 }
 
-.blocket-troposphere {
-  opacity: 0.4;
-  position: relative;
-  > img {
-    top: 50%;
-    left: 50%;
-    width: auto;
-    height: 260px;
-    position: absolute;
-    outline: 1px solid transparent;
-    transform: translate(-50%, -50%);
-    -webkit-backface-visibility: hidden;
-    -webkit-transform: translate(-50%, -50%);
-    &.sos {
-      height: 495px;
-      margin-top: -248px;
-      margin-left: -141px;
-      @include animation(sway 2s infinite);
-    }
-  }
-  .clouds {
-    position: relative;
-    @include animation(float-up 3s infinite linear);
-    &.down {
-      @include animation(float-down 1.9s infinite linear);
-    }
-    // random cloud positions and sizes
-    img {
-      width: auto;
-      height: 80px;
-      margin-top: 20px;
-      margin-bottom: 30px;
-      &:nth-child(odd) {
-        margin-left: 200px;
-      }
-      &:nth-child(even) {
-        margin-right: 180px;
-      }
-    }
-    &:nth-child(2) img {
-      &:nth-child(odd) {
-        margin-left: 300px;
-      }
-      &:nth-child(even) {
-        margin-right: 260px;
-      }  
+.bank-transfer {
+  border: 0px;
+  li {
+    border: 0px;
+    display: block;
+    > span:first-child {
+      @extend .em-500;
+      @extend .mr-5;
     }
   }
 }
+
+.find-partner {
+  height: 350px;
+}
+
+.cc-shadow {
+  box-shadow: 0px 4px 5px 1px #CCC;
+  width: 30px;
+}
+
+.signup-steps {
+  @media (max-width: 991px) {
+    .pt-70 {
+      padding-top: 25px;
+      .width-80 {
+        margin-bottom: 30px;
+      }
+    }
+  }
+  @media (max-width: 767px) {
+    .pt-70 {
+      .width-80 {
+        padding: 0px 30px;
+      }
+    }
+  }
+}
+
+#plaid {
+  border-width: 0px;
+  height: 42px;
+  width: 100%;
+  &.enabled {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    display: block;
+    z-index: 99999999;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+  }
+}
+
+.bank-logo {
+  width: 50px;
+  fill: #5f5f5f;
+  @extend .mr-20;
+  path {
+    @include transition(fill $fast);
+  }
+}
+
+label:hover,
+input[type="radio"]:checked + label {
+  .bank-logo {
+    &.bbt {
+      fill: #8a0025;
+    }
+    &.bofa {
+      fill: #0052c2;
+      .Logos__bofa--red-part {
+        fill: #e92d0d;
+      }
+    }
+    &.capone {
+      fill: #a12831;
+      .Logos__capone-type {
+        fill: #003a6f;
+      }
+    }
+    &.chase {
+      fill: #175da5;
+    }
+    &.citi {
+      fill: #092869;
+      .Logos__citi--hat {
+        fill: #e83035;
+      }
+    }
+    &.fidelity {
+      fill: #3f981a;
+    }
+    &.nfcu {
+      fill: #0a447d;
+    }
+    &.pnc {
+      &.Logos__pnc--circle {
+        fill: #f28032;
+      }
+      &.Logos__pnc--type {
+        fill: #0e69aa;
+      }
+    }
+    &.schwab {
+      fill: #008cda;
+    }
+    &.suntrust {
+      fill: #00386d;
+      .Logos__suntrust--fan {
+        fill: #fab731;
+      }
+    }
+    &.td {
+      fill: #21aa21;
+      .st0 {
+        fill: #1b3f25;
+      }
+      .st1 {
+        background-color: #fff;
+      }
+    }
+    &.us {
+      fill: #0c2074;
+      .Logos__us--shield {
+        fill: #de162b;
+      }
+      .Logos__us--us-text {
+        fill: #fbfbfb;
+      }
+    }
+    &.usaa {
+      fill: #00365b;
+    }
+    &.wells {
+      fill: #e62227;
+    }
+  }
+}
+
+.primary { color: $iris; }

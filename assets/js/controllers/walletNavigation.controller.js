@@ -2,53 +2,32 @@ angular
   .module('walletApp')
   .controller('WalletNavigationCtrl', WalletNavigationCtrl);
 
-function WalletNavigationCtrl ($rootScope, $scope, Wallet, MyWallet, Alerts, SecurityCenter, $state, $stateParams, $uibModal, filterFilter, $location) {
+function WalletNavigationCtrl ($rootScope, $scope, Wallet, SecurityCenter, $state, $uibModal, filterFilter, $location, buyStatus, cta) {
   $scope.status = Wallet.status;
-  $scope.total = Wallet.total;
   $scope.settings = Wallet.settings;
   $scope.security = SecurityCenter.security;
+  $scope.userHasAccount = buyStatus.userHasAccount();
 
-  let accountInfo = MyWallet.wallet && MyWallet.wallet.accountInfo;
-  $scope.isUserInvited = accountInfo && accountInfo.invited;
-  $scope.isUserWhitelisted = accountInfo && [
-    'GB',
-    'DK',
-    'BE',
-    'BG',
-    'CZ',
-    'DE',
-    'EE',
-    'IE',
-    'EL',
-    'ES',
-    'FR',
-    'HR',
-    'IT',
-    'CY',
-    'LV',
-    'LT',
-    'LU',
-    'HU',
-    'MT',
-    'NL',
-    'AT',
-    'PL',
-    'PT',
-    'RO',
-    'SI',
-    'SK',
-    'FI',
-    'SE',
-    'NO',
-    'CH',
-    'LI',
-    'IS'
-  ].indexOf(accountInfo.countryCodeGuess) > -1;
-  // debug uninvited user and whitelisted
-  // $scope.isUserInvited = false;
-  // $scope.isUserWhitelisted = true;
+  $scope.shouldShowBuyCta = cta.shouldShowBuyCta;
+  $scope.setBuyCtaDismissed = cta.setBuyCtaDissmissed;
+  $scope.shouldShowSecurityWarning = cta.shouldShowSecurityWarning;
+  $scope.setSecurityWarningDismissed = cta.setSecurityWarningDismissed;
+  $scope.getSecurityWarningMessage = cta.getSecurityWarningMessage;
 
-  $scope.selectedAccountIndex = $stateParams.accountIndex;
+  $scope.dismissBuyCta = () => {
+    if ($scope.shouldShowBuyCta()) $scope.setBuyCtaDismissed();
+  };
+
+  buyStatus.canBuy().then((res) => $scope.canBuy = res);
+  buyStatus.shouldShowInviteForm().then((res) => $scope.shouldShowInviteForm = res);
+
+  $scope.showInviteForm = () => {
+    $uibModal.open({
+      templateUrl: 'partials/buy-subscribe-modal.jade',
+      windowClass: 'bc-modal xs',
+      controller: 'SubscribeCtrl'
+    });
+  };
 
   $scope.numberOfActiveLegacyAddresses = () => {
     if (!Wallet.status.isLoggedIn) return null;
@@ -64,16 +43,6 @@ function WalletNavigationCtrl ($rootScope, $scope, Wallet, MyWallet, Alerts, Sec
     }).length;
   };
 
-  $scope.getMainAccountId = () => {
-    if (!$scope.status.isLoggedIn) return 0;
-    return ($scope.numberOfActiveAccounts() <= 1) ? Wallet.getDefaultAccountIndex() : '';
-  };
-
-  $scope.showImported = () => {
-    return ($scope.selectedAccountIndex === 'imported' &&
-            $state.current.name === 'wallet.common.transactions');
-  };
-
   $scope.accountsRoute = () => [
     'wallet.common.settings.accounts_index',
     'wallet.common.settings.accounts_addresses',
@@ -82,36 +51,8 @@ function WalletNavigationCtrl ($rootScope, $scope, Wallet, MyWallet, Alerts, Sec
 
   $scope.showOrHide = (path) => $location.url().indexOf(path) !== -1;
 
-  $scope.newAccount = () => {
-    Alerts.clear();
-    $uibModal.open({
-      templateUrl: 'partials/account-form.jade',
-      controller: 'AccountFormCtrl',
-      windowClass: 'bc-modal sm',
-      resolve: {
-        account: () => void 0
-      }
-    });
-  };
-
-  $scope.getLegacyTotal = () => Wallet.total('imported');
-
-  $scope.didLoad = () => {
-    $scope.accounts = Wallet.accounts;
-  };
-
   $rootScope.supportModal = () => $uibModal.open({
     templateUrl: 'partials/support.jade',
     windowClass: 'bc-modal auto'
   });
-
-  $scope.signupForBuyAccess = () => {
-    $uibModal.open({
-      templateUrl: 'partials/subscribe-modal.jade',
-      controller: 'SubscribeCtrl',
-      windowClass: 'bc-modal xs'
-    });
-  };
-
-  $scope.didLoad();
 }

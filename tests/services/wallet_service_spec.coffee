@@ -6,6 +6,7 @@ describe "walletServices", () ->
   MyBlockchainSettings = undefined
   MyBlockchainApi = undefined
   $rootScope = undefined
+  Options = undefined
 
   beforeEach angular.mock.module("walletApp")
 
@@ -16,6 +17,10 @@ describe "walletServices", () ->
       MyBlockchainSettings = $injector.get("MyBlockchainSettings")
       MyBlockchainApi = $injector.get("MyBlockchainApi")
       Alerts = $injector.get('Alerts')
+      Options = $injector.get("Options")
+
+      Options.get = () ->
+        Promise.resolve({})
 
       spyOn($cookies, "get").and.callFake((name) ->
         if name == "session"
@@ -65,6 +70,8 @@ describe "walletServices", () ->
           email: "steve@me.com"
           mobile: "+1234"
           currency: "USD"
+        external:
+          sfox: { monitorPayments: -> }
 
       return
 
@@ -94,7 +101,7 @@ describe "walletServices", () ->
 
       spyOn(Wallet.settings_api, "changeLanguage").and.callThrough()
 
-      Wallet.changeLanguage(languages[0])
+      Wallet.changeLanguage(languages.languages[0])
       expect(MyBlockchainSettings.changeLanguage).toHaveBeenCalled()
       expect(MyBlockchainSettings.changeLanguage.calls.argsFor(0)[0]).toBe("bg")
       expect(Wallet.settings.language.code).toBe("bg")
@@ -162,7 +169,7 @@ describe "walletServices", () ->
       newNumber = {country: "+31", number: "0100000000"}
       Wallet.changeMobile(newNumber, (()->),(()->))
       expect(Wallet.settings_api.changeMobileNumber).toHaveBeenCalled()
-      expect(Wallet.user.mobile).toBe(newNumber)
+      expect(Wallet.user.mobileNumber).toBe(newNumber)
       expect(Wallet.user.isMobileVerified).toBe(false)
     )
 
@@ -496,9 +503,11 @@ describe "walletServices", () ->
     it "should return an array of legacy addresses", ->
       expect(Wallet.legacyAddresses()).toEqual([])
 
-    it "should be null if not logged in", ->
+    it "should be an empty array if not logged in", ->
       Wallet.status.isLoggedIn = false
-      expect(Wallet.legacyAddresses()).toBe(null)
+      addrs = Wallet.legacyAddresses()
+      expect(Array.isArray addrs).toBe(true)
+      expect(addrs.length).toBe(0)
 
   describe "accounts()", ->
     beforeEach ->

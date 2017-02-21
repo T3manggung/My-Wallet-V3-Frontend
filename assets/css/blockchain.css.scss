@@ -8,11 +8,8 @@
 @import 'utilities/spacing';
 @import 'utilities/typography';
 @import 'utilities/shadows';
-@import 'utilities/mobile-specific';
 @import 'utilities/borders';
 @import 'utilities/addresses';
-@import 'utilities/shadows';
-@import 'utilities/flex';
 
 //import elements
 @import 'elements/buttons';
@@ -49,6 +46,7 @@
 @import 'modules/signin';
 @import 'modules/two-factor';
 @import 'modules/confirm-recovery-phrase';
+@import 'modules/sift_science';
 
 //import modules
 @import 'modules/header';
@@ -59,6 +57,7 @@
 @import 'modules/upgrade';
 @import 'modules/settings';
 @import 'modules/transaction-list';
+@import 'modules/faq';
 
 //override bootstrap
 @import 'utilities/bs_overrides';

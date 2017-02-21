@@ -3,7 +3,7 @@
     @media (min-width: 768px) {
       width: auto;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
       margin-right: 0;
     }
   }
@@ -12,7 +12,7 @@
       width: 100% !important;
     }
     .signup {
-      margin-top: 80px;
+      margin-top: 60px;
     }
     .stats {
       margin-top: 60px;
@@ -25,7 +25,6 @@
     }
     color: white;
     height: 660px;
-    padding-top: 150px;
     background-image: url('../img/landing-page-banner.jpg');
     background-repeat: no-repeat;
     background-position: 100% 100%;
@@ -33,8 +32,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    @media (max-width: 768px) {
-      padding-top: 285px;
+    @media (max-width: 767px) {
       background-position: 10% 100%;
     }
     @media (min-width: 1441px) {
@@ -58,7 +56,7 @@
     small {
       color: white;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
       span {
         font-size: 20px;
       }
@@ -101,7 +99,7 @@
       padding-right: 3em;
       padding-left: 3em;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
       .plrl-desk {
         padding-left: 0;
         padding-right: 0;
@@ -147,8 +145,8 @@
       margin-top: 40px;
       min-height: 335px;
       position: relative;
-      background: $light-grey;
-      @media (max-width: 768px) {
+      background: $grey;
+      @media (max-width: 767px) {
         margin-top: 20px;
         min-height: 300px;
       }
@@ -249,7 +247,7 @@
       font-size: 24px;
       left: 50%;
       top: 35px;
-      @media (max-width: 768px) {
+      @media (max-width: 767px) {
         left: 0;
         top: 20px;
         width: 100%;
@@ -265,12 +263,12 @@
         height: 16px !important;
         width: 16px !important;
         background: $mid-grey;
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
           height: 12px !important;
           width: 12px !important;
         }
         &.active {
-          background: $dark-grey;
+          background: $basic-grey;
         }
       }
     }

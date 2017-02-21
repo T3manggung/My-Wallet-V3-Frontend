@@ -7,10 +7,12 @@ const modules = [
   'didYouKnow',
   'activity',
   'adverts',
+  'options',
   'ui.router',
   'ui.bootstrap',
   'ngCookies',
   'ngAnimate',
+  'ngFileUpload',
 
   'ui.select',
   'ngAudio',
@@ -33,8 +35,19 @@ angular.module('walletApp', modules).run(($rootScope) => {
     before = before;
     if (!scope.$$phase && !$rootScope.$$phase) scope.$apply(before);
   };
+
+  $rootScope.safeWindowOpen = () => {};
+
   $rootScope.scheduleRefresh = () => {};
   $rootScope.cancelRefresh = () => {};
+
+  $rootScope.installLock = function () {
+    this.locked = false;
+    this.lock = () => { this.locked = true; };
+    this.free = () => { this.locked = false; };
+  };
+
+  $rootScope.isProduction = true;
 });
 
 beforeEach(module('templates-main'));

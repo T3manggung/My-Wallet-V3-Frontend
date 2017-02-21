@@ -2,7 +2,7 @@ angular
   .module('walletApp')
   .directive('isignthis', isignthis);
 
-function isignthis ($sce) {
+function isignthis ($sce, Options) {
   const directive = {
     restrict: 'E',
     scope: {
@@ -31,11 +31,23 @@ function isignthis ($sce) {
       }
     });
 
+    let iSignThisDomain;
+
+    let processOptions = (options) => {
+      iSignThisDomain = options.partners.coinify.iSignThisDomain;
+    };
+
+    if (Options.didFetch) {
+      processOptions(Options.options);
+    } else {
+      Options.get().then(processOptions);
+    }
+
     scope.iSignThisFrame = (iSignThisID) => {
       // TODO: use elem or avoid usage alltogether:
       var e = document.getElementById('isx-iframe');
 
-      scope.url = $sce.trustAsResourceUrl('https://verify.isignthis.com/landing/' + iSignThisID + '?embed=true');
+      scope.url = $sce.trustAsResourceUrl(`${iSignThisDomain}/landing/${iSignThisID}?embed=true`);
 
       // iSignThis iframe contoller code, TODO:
       // * Angularize
@@ -99,7 +111,7 @@ function isignthis ($sce) {
         eventer(messageEvent, function (e) {
           // Check for the domain who sent the messageEvent
           var origin = e.origin || e.originalEvent.origin;
-          if (origin !== 'https://verify.isignthis.com') {
+          if (origin !== iSignThisDomain) {
             // Event not generated from ISX, simply return
             return;
           }
@@ -147,13 +159,43 @@ function isignthis ($sce) {
         minimum_height: 400
       };
 
+      var setState = (state) => {
+        switch (state) {
+          case 'SUCCESS.MANUAL_ACCEPTED':
+          case 'SUCCESS.COMPLETE':
+            scope.onComplete('processing');
+            break;
+          case 'CANCELLED.CANCELLED':
+            scope.onComplete('cancelled');
+            break;
+          case 'EXPIRED.EXPIRED':
+            scope.onComplete('expired');
+            break;
+          case 'DECLINED.CARD_ISSUER_COUNTRY':
+          case 'DECLINED.SPLIT_TOKEN_DENIED':
+          case 'DECLINED.TOO_MANY_ATTEMPTS':
+          case 'DECLINED.OTP_TOKEN_DENIED':
+          case 'DECLINED.UNKNOWN_ERROR':
+          case 'FAILED.UNEXPECTED_ERROR':
+          case 'REJECTED.UPSTREAM_REJECTED':
+            scope.onComplete('rejected');
+            break;
+          case 'PENDING.PROCESSING_DOCUMENT':
+          case 'PROCESSING_DOCUMENT.PENDING':
+          case 'PENDING.MANUAL_REVIEW':
+            scope.onComplete('reviewing');
+            break;
+        }
+      };
+
       scope.showFrame = true;
 
       _isx
         .setup(widget)
         .done(function (e) {
           console.log('completed. e=', JSON.stringify(e));
-          scope.showFrame = false;
+
+          setState(e.compound_state);
         })
         .fail(function (e) {
           console.log('error. e=' + JSON.stringify(e));
@@ -167,32 +209,7 @@ function isignthis ($sce) {
           scope.paymentInfo = e.route.match('/otp|/verify-pin|/kyc');
           scope.onResize({step: e.route.match(/\/(.*)\//)[1]});
 
-          // handle states in between awaiting_transfer_in and completed
-          switch (e.state) {
-            case 'SUCCESS':
-            case 'MANUAL_ACCEPTED':
-              scope.onComplete('processing');
-              break;
-            case 'MANUAL_HOLD':
-            case 'MANUAL_REVIEW':
-            case 'PROCESSING_DOCUMENT':
-              scope.onComplete('reviewing');
-              break;
-            case 'EXPIRED':
-              scope.onComplete('expired');
-              break;
-            case 'DECLINED':
-            case 'REJECTED':
-            case 'MANUAL_REJECTED':
-              scope.onComplete('rejected');
-              break;
-            case 'FAILED':
-              scope.onComplete('failed');
-              break;
-            case 'CANCELLED':
-              scope.onComplete('cancelled');
-              break;
-          }
+          setState(e.compound_state);
         })
         .publish();
     };

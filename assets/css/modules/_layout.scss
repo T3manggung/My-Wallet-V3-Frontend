@@ -7,11 +7,14 @@
   position: absolute;
   width: 270px;
   padding: 15px;
-  background: $light-blue;
+  background: $grey;
   height: calc(100% - 60px);
   border-right: 1px solid $border-grey;
   @media (max-height: 550px) {
     overflow: auto;
+  }
+  @media (max-width: 767px) {
+    height: calc(100% - 50px);
   }
   .active-accounts{
     margin-bottom: 30px;
@@ -20,8 +23,8 @@
     margin-bottom: 30px;
   }
   .side-box {
-    background-color: $light-grey;
-    border: 1px solid $grey;
+    background-color: $grey;
+    border: 1px solid $border-grey;
   }
 }
 .top-view {
@@ -39,7 +42,11 @@
       height: 11px;
     }
   }
-  .align-offset { top: -7px; }
+  .reg {
+    top: -0.75em;
+    font-size: 0.5em;
+    font-weight: 300;
+  }
 }
 
 .main-container {
@@ -59,7 +66,7 @@
   height: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .left-nav {
     left: -270px;
     z-index: 11; //just enough to be visible
@@ -72,7 +79,7 @@
     width: 100%;
     position: relative;
     margin-left: 0;
-    height: 95px;
+    height: 150px;
     top: 0px;
   }
   .transactions { top: 0; }
@@ -91,16 +98,23 @@
 @for $i from 1 through 20 {
   .width-#{$i*5} {
     width: percentage($i*5/100);
-    @media (max-width: 992px) {
+    @media (max-width: 991px) {
       width: auto;
     }
   }
 }
 
 @for $i from 1 through 20 {
+  .width-#{$i*5}-tablet {
+    @media (min-width: 768px) and (max-width: 991px) {
+      width: percentage($i*5/100);
+    }
+  }
+}
+
+@for $i from 1 through 20 {
   .width-#{$i*5}-mobile {
-    width: percentage($i*5/100);
-    @media (max-width: 992px) {
+    @media (max-width: 767px) {
       width: percentage($i*5/100);
     }
   }
@@ -112,16 +126,12 @@
 
 .brdrn { border-radius: 0px !important; }
 
-@media (max-width: 992px) {
+@media (max-width: 991px) {
   .top-view .heavy h1 { font-size: 1.75em; }
-  .top-view .heavy p { font-size: 1em; }
 }
 
-@media (max-width: 768px) {
-  .top-view .my-wallet { display: none; }
-  .top-view .heavy h1 { font-size: 1.25em; }
-  .top-view .heavy p { font-size: .9em; }
-  .top-view .heavy { top: -6px; }
+@media (max-width: 767px) {
+  .top-view .heavy p { font-size: 1.2em; }
 }
 
 @media (max-width:480px) {
@@ -152,9 +162,21 @@
 .clear-right { clear: right; }
 
 .width-100 {
-  @media (max-width: 992px) {
+  @media (max-width: 991px) {
     width: 100%;
   }
 }
 
 .vat { vertical-align: top; }
+
+.bottom-right-footer {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  left: 270px;
+  padding: 15px 30px;
+  background-color: $grey-transparent;
+  @media (max-width: 767px) {
+    left: 0px;
+  }
+}

@@ -4,7 +4,6 @@ angular.module('walletApp')
 function buySteps () {
   const directive = {
     restrict: 'E',
-    replace: true,
     scope: {
       buy: '&',
       tradeObj: '=',
@@ -12,7 +11,7 @@ function buySteps () {
       onStep: '=',
       afterStep: '=',
       beforeStep: '=',
-      getMethod: '=',
+      getMedium: '=',
       transaction: '=',
       exchangeAcct: '=',
       paymentInfo: '=',

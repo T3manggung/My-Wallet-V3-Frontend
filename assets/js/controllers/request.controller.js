@@ -2,7 +2,7 @@ angular
   .module('walletApp')
   .controller('RequestCtrl', RequestCtrl);
 
-function RequestCtrl ($rootScope, $scope, Wallet, Alerts, currency, $uibModalInstance, $log, destination, focus, hasLegacyAddress, $translate, $stateParams, filterFilter, $filter, format) {
+function RequestCtrl ($rootScope, $scope, Wallet, Alerts, currency, $uibModalInstance, $log, destination, focus, $translate, $stateParams, filterFilter, $filter, format, smartAccount) {
   $scope.status = Wallet.status;
   $scope.settings = Wallet.settings;
   $scope.accounts = Wallet.accounts;
@@ -17,38 +17,14 @@ function RequestCtrl ($rootScope, $scope, Wallet, Alerts, currency, $uibModalIns
   $scope.destinationLimit = 50;
   $scope.increaseLimit = () => $scope.destinationLimit += 50;
 
-  $scope.hasLegacyAddress = hasLegacyAddress;
-
   $scope.fields = {
     to: null,
     amount: null,
     label: ''
   };
 
-  for (let account of $scope.accounts()) {
-    if (account.index != null && !account.archived) {
-      account = format.destination(account);
-      $scope.destinations.push(angular.copy(account));
-      if ((destination != null) && (destination.index != null) && destination.index === account.index) {
-        $scope.fields.to = account;
-      }
-    }
-  }
-
-  for (let address of $scope.legacyAddresses()) {
-    address = format.destination(address);
-
-    if (!address.archived) {
-      $scope.destinations.push(angular.copy(address));
-      if ((destination != null) && (destination.address != null) && destination.address === address.address) {
-        $scope.fields.to = address;
-      }
-    }
-  }
-
-  $scope.closeAlert = alert => {
-    Alerts.close(alert);
-  };
+  $scope.destinations = smartAccount.getOptions();
+  $scope.fields.to = focus ? destination : Wallet.my.wallet.hdwallet.defaultAccount;
 
   $scope.advancedReceive = () => {
     $scope.advanced = true;
@@ -90,9 +66,9 @@ function RequestCtrl ($rootScope, $scope, Wallet, Alerts, currency, $uibModalIns
     $uibModalInstance.dismiss('');
   };
 
-  $scope.close = () => {
-    $scope.cancel();
-    $rootScope.$broadcast('enableRequestBeacon');
+  $scope.useAccount = () => {
+    let idx = Wallet.my.wallet.hdwallet.defaultAccountIndex;
+    $scope.fields.to = $scope.destinations.filter(d => d.index === idx)[0];
   };
 
   $scope.numberOfActiveAccountsAndLegacyAddresses = () => {
@@ -106,22 +82,8 @@ function RequestCtrl ($rootScope, $scope, Wallet, Alerts, currency, $uibModalIns
   };
 
   $scope.$watchCollection('destinations', () => {
-    let idx = Wallet.getDefaultAccountIndex();
-    if ($scope.hasLegacyAddress) {
-      $scope.fields.to = filterFilter(Wallet.legacyAddresses(), {
-        isWatchOnly: false,
-        archived: false
-      })[0];
-    }
-    if (($scope.fields.to == null) && $scope.accounts().length > 0) {
-      if ($stateParams.accountIndex === '' || ($stateParams.accountIndex == null)) {
-
-      } else if ($stateParams.accountIndex === 'imported' || ($stateParams.accountIndex == null)) {
-
-      } else {
-        idx = parseInt($stateParams.accountIndex, 10);
-      }
-      $scope.fields.to = $scope.accounts()[idx];
+    if ($scope.fields.to == null) {
+      $scope.fields.to = smartAccount.getDefault();
     }
   });
 

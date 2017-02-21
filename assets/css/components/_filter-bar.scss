@@ -1,13 +1,53 @@
 .filter-bar {
-  position: fixed;
-  width: calc(100% - 270px);
-  left: 270px;
-  top: 175px;
-  height: 50px;
-  background: $light-blue;
-  padding: 0 30px;
-  border-bottom: 1px solid #ddd;
   z-index: 1;
+  top: 175px;
+  left: 270px;
+  height: 60px;
+  position: fixed;
+  padding: 0px 30px;
+  background: $grey;
+  width: calc(100% - 270px);
+  border-bottom: 1px solid $border-grey;
+  @media (max-width: 767px) {
+    padding: 0 10px;
+  }
+  .ui-select-container {
+    width: 360px;
+    .divider {
+      margin: 0px auto;
+    }
+  }
+  .dropdown-menu {
+    margin: 0px;
+    > li:first-child {
+      .dropdown-header {
+        // we need to remove this when we come up with what we want to call Accounts
+        display: none;
+      }
+    }
+  }
+  .ui-select-match {
+    label-origin {
+      > span:first-child {
+        max-width: 120px;
+      }
+    }
+  }
+  .ui-select-choices-group:first-of-type > .ui-select-choices-row:nth-child(3) {
+    @extend .border-bottom-light;
+  }
+  @media (max-width: 991px) {
+    &.open {
+      height: 235px;
+      display: block;
+      .pointer {
+        padding-top: 4px;
+      }
+      .ui-select-container {
+        width: 100%;
+      }
+    }
+  }
 }
 
 .filter-buttons {
@@ -15,6 +55,9 @@
     transition: opacity .3s ease-in-out;
     opacity: .5;
     margin-right: 1em;
+    &.spaced {
+      margin-right: 2em;
+    }
     &:last-child {
       margin-right: 0;
     }
@@ -31,12 +74,13 @@
     min-width: 300px;
     border-radius: 5px;
     padding: 5px 10px;
-    border: 1px solid #ddd
+    border: 1px solid $border-grey;
   }
   .ti-search {
     position: absolute;
+    z-index: 3;
     right: 8px;
-    top: 6px;
+    top: 12px;
   }
 }
 
@@ -47,9 +91,9 @@
     height: 38px;
     padding: 6px 12px;
     font-size: 14px;
-    line-height: 1.42857;
-    border: 1px solid $ccc;
     border-radius: 4px;
+    line-height: 1.42857;
+    border: 1px solid $border-grey;
   }
   .ti-search {
     right: 10px;
@@ -57,30 +101,24 @@
   }
 }
 
-@media (max-width: 667px) {
-  .filter-search {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .filter-search input { padding-right: 25px !important }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 992px) {
   .filter-search input { padding-right: 25px !important }
 }
 
-@media (min-width: 768px) and (max-width: 900px) {
+@media (min-width: 768px) and (max-width: 991px) {
   .filter-search input { min-width: 180px }
   .filter-search .ti-search { display: none; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .filter-bar {
+    border-top: 1px solid $border-grey;
     width: 100%;
-    top: 145px;
+    top: 200px;
     left: 0;
-    border-top: 1px solid $eee
   }
 }

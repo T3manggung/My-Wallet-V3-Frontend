@@ -1,4 +1,4 @@
-.pos-rel(ng-switch="currentStep")
+.pos-rel(ng-switch="currentStep" data-preflight-tag="Reset2FA")
   header.flex-center.flex-between
     div
       h2.em-300.mtn(translate="RESET_2FA")
@@ -57,17 +57,18 @@
           ng-model="fields.captcha"
           required)
     .flex-center.flex-end.mvl(ng-switch-when="1")
-      img(ng-show="working" src="img/spinner.gif")
       button.button-muted.mrm(
         type="button"
         ng-disabled="working"
         ui-sref="public.help"
         translate="GO_BACK")
-      button.button-success(
+      button.button-primary(
         type="submit"
         ng-click="resetTwoFactor()"
         ng-disabled="!form.$valid || working"
-        translate="CONTINUE")
+        ui-ladda="working"
+        data-style="expand-left"
+        ladda-translate="CONTINUE")
   .flex-center.flex-justify.flex-column(ng-switch-when="2")
     .level-complete.flex-center.flex-justify
       i.ti-check.bright-green

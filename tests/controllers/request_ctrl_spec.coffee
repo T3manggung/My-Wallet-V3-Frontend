@@ -12,6 +12,7 @@ describe "RequestCtrl", ->
       Wallet = $injector.get("Wallet")
       MyWallet = $injector.get("MyWallet")
       currency = $injector.get('currency')
+      smartAccount = $injector.get("smartAccount")
 
       MyWallet.wallet = {
         isUpgradedToHD: true
@@ -19,8 +20,12 @@ describe "RequestCtrl", ->
           { address: '1asdf', archived: false, isWatchOnly: false }, { address: '1asdf', archived: true }
         ]
         hdwallet: {
-          accounts: [{ index: 0, archived: true }, { index: 0, archived: false }, { index: 0, archived: true }]
+          accounts: [{ index: 0, archived: true },
+                     { index: 1, archived: false },
+                     { index: 2, archived: true },
+                     { label: "Checking", index: 3, archived: false, balance: 100 }]
           defaultAccountIndex: 0
+          defaultAccount: { label: "Checking", index: 3, archived: false, balance: 100 }
         }
 
       }
@@ -88,10 +93,6 @@ describe "RequestCtrl", ->
 
     it "should select the users currency by default", inject((Wallet)->
       expect(scope.settings.currency.code).toBe("USD")
-    )
-
-    it "should select the oldest address by default", inject((Wallet) ->
-      expect(scope.fields.to.address).toBe('1asdf')
     )
 
     it "should have a bit currency", inject((Wallet)->

@@ -11,6 +11,7 @@
 .flex-start,
 .flex-column,
 .flex-center,
+.flex-justify,
 .flex-align-start,
 .flex-align-end,
 .flex-baseline,
@@ -153,7 +154,7 @@
 }
 
 // mobile flex support
-@media (max-width: 992px) {
+@media (max-width: 991px) {
   .flex-start-tablet {
     -webkit-box-pack: start;
     -webkit-justify-content: flex-start;
@@ -167,9 +168,15 @@
     -ms-flex-direction: column;
     flex-direction: column;
   }
+  .flex-between-tablet {
+    -ms-flex-pack: justify;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    -webkit-justify-content: space-between;
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .flex-column-mobile {
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
@@ -188,4 +195,11 @@
     -webkit-box-direction: reverse;
     -ms-flex-direction: column-reverse;
     flex-direction: column-reverse; }
+  .flex-center-mobile {
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    -ms-grid-row-align: center;
+    align-items: center;
+  }
 }
